@@ -1,0 +1,43 @@
+{
+  "name": "game-advisor",
+  "version": "0.0.0",
+  "description": "Game Advisor is a web application that helps you find the best games for your needs.",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "apps/*"
+    ],
+    "nohoist": [
+      "**/@nestjs",
+      "**/@nestjs/**"
+    ]
+  },
+  "scripts": {
+    "format": "prettier \"{apps,libs}/**/*.{ts,tsx,js,json}\" --write",
+    "build": "yarn nx run-many -t build",
+    "lint": "yarn nx run-many -t lint",
+    "validate": "yarn format && yarn lint && yarn build",
+    "prepare": "husky install",
+    "test": "yarn nx run-many -t test"
+  },
+  "keywords": [],
+  "author": "EcchiGrill",
+  "license": "ISC",
+  "devDependencies": {
+    "@nx/js": "^22.0.3",
+    "eslint": "^9.39.1",
+    "husky": "^9.1.7",
+    "jest": "^30.2.0",
+    "lint-staged": "^16.2.6",
+    "nx": "^22.0.3",
+    "nx-cloud": "^19.1.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3"
+  },
+  "lint-staged": {
+    "apps/**/*.{ts,tsx,js}": [
+      "yarn format",
+      "yarn lint"
+    ]
+  }
+}
