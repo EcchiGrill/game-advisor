@@ -28,6 +28,7 @@ const config: Config = {
           dark: '#C22440',
           light: '#F8909D',
         },
+        ring: '#A7A0A0',
         background: '#FFFFFF',
       },
     },
