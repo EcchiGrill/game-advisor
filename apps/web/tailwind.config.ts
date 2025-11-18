@@ -12,11 +12,27 @@ const config: Config = {
         xs: '480px',
       },
       colors: {
-        background: '#ffff',
+        primary: {
+          DEFAULT: '#000000',
+          foreground: '#FFFFFF',
+        },
+        secondary: {
+          DEFAULT: '#FFFFFF',
+          foreground: '#000000',
+        },
+        contrast: {
+          DEFAULT: '#A7A0A0',
+        },
+        error: {
+          DEFAULT: '#E63143',
+          dark: '#C22440',
+          light: '#F8909D',
+        },
+        ring: '#A7A0A0',
+        background: '#FFFFFF',
       },
     },
   },
-  plugins: [],
 };
 
 export default config;

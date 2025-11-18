@@ -1,6 +1,8 @@
 'use client';
+
 import { toast } from 'react-toastify';
 import { LayoutTemplate } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 export default function Page() {
   return (
@@ -9,13 +11,9 @@ export default function Page() {
         <LayoutTemplate className="h-8 w-8 mt-1" />
         Game Advisor
       </h1>
-      <button
-        type="button"
-        className="p-2 px-10 text-lg outline-none rounded-md bg-neutral-200 hover:bg-neutral-300"
-        onClick={() => toast.info('Click!')}
-      >
+      <Button onClick={() => toast.info('Click!')} size="lg">
         Click!
-      </button>
+      </Button>
     </div>
   );
 }
