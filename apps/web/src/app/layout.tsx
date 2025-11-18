@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Alata } from 'next/font/google';
 import { ToastContainer } from 'react-toastify';
+import { TooltipProvider } from '@/components/ui/Tooltip';
 import './globals.css';
 
 const alata = Alata({
@@ -22,8 +23,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${alata.variable} antialiased`}>
-        {children}
-        <ToastContainer />
+        <TooltipProvider>
+          {children}
+          <ToastContainer />
+        </TooltipProvider>
       </body>
     </html>
   );
