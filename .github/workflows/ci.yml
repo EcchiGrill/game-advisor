@@ -4,27 +4,31 @@ on:
   pull_request:
     branches: [dev, main]
 
-permissions:
-  actions: read
-  contents: read
-
 jobs:
-  main:
+  test:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          filter: tree:0
-          fetch-depth: 0
 
-      # Cache node_modules
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        filter: tree:0
+        fetch-depth: 0
 
-      - run: npm ci
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
 
-      - run: npx nx run-many -t lint test
-      - run: npx nx fix-ci
-        if: always()
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run lint
+    - run: yarn nx run-many -t lint
+
+    - name: Run tests
+      run: yarn nx run-many -t test
+
+    - name: Run Nx debugger
+      run: yarn nx fix-ci
