@@ -29,7 +29,7 @@ const config: Config = {
           light: '#F8909D',
         },
         ring: '#A7A0A0',
-        background: '#FFFFFF',
+        background: '#0A0A0A',
       },
     },
   },
