@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { Alata } from 'next/font/google';
+import { Hanuman } from 'next/font/google';
 import { ToastContainer } from 'react-toastify';
 import { TooltipProvider } from '@/components/ui/Tooltip';
 import './globals.css';
 
-const alata = Alata({
+const hanuman = Hanuman({
   weight: '400',
   subsets: ['latin'],
-  variable: '--font-alata',
+  variable: '--font-hanuman',
 });
 
 export const metadata: Metadata = {
@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${alata.variable} antialiased`}>
+      <body className={`${hanuman.variable} antialiased`}>
         <TooltipProvider>
           {children}
           <ToastContainer />

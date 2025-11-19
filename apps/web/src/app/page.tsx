@@ -1,19 +1,26 @@
 'use client';
 
+import { AIAdvisor } from '@/components/AIAdvisor';
+import { AnimatedBackground } from '@/components/common/AnimatedBackground';
+import { Header } from '@/components/common/Header';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { LayoutTemplate } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
 
-export default function Page() {
+export default function Home() {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (prompt: string) => {
+    setIsLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    toast.success(`Game found!: ${prompt}`);
+    setIsLoading(false);
+  };
+
   return (
-    <div className="flex items-center flex-col p-10 gap-3">
-      <h1 className="text-4xl flex gap-2 items-center">
-        <LayoutTemplate className="h-8 w-8 mt-1" />
-        Game Advisor
-      </h1>
-      <Button onClick={() => toast.info('Click!')} size="lg">
-        Click!
-      </Button>
-    </div>
+    <>
+      <Header />
+      <AIAdvisor onSubmit={handleSubmit} loading={isLoading} />
+      <AnimatedBackground loading={isLoading} />
+    </>
   );
 }
