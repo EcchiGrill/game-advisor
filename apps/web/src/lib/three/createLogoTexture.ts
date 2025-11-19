@@ -23,7 +23,10 @@ export const createLogoTexture = (text: string): THREE.CanvasTexture => {
   ctx.shadowColor = 'rgba(255, 255, 255, 0.95)';
   ctx.shadowBlur = 24;
 
-  ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+  const positionX = canvas.width / 2;
+  const positionY = canvas.height / 2 - 60;
+
+  ctx.fillText(text, positionX, positionY);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.anisotropy = 4;

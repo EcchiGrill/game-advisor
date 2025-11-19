@@ -4,12 +4,23 @@ import { SendHorizontal } from 'lucide-react';
 import { Textarea } from './ui/Textarea';
 import { useState } from 'react';
 import { Button } from './ui/Button';
+import { cn } from '@/lib/utils';
 
-export const AIAdvisor = () => {
+interface AIAdvisorProps {
+  onSubmit: (prompt: string) => Promise<void>;
+  loading: boolean;
+}
+
+export const AIAdvisor = ({ onSubmit, loading }: AIAdvisorProps) => {
   const [prompt, setPrompt] = useState('');
 
   return (
-    <div className="flex flex-col gap-16 items-center justify-center h-[calc(100vh-80px)]">
+    <div
+      className={cn(
+        'flex flex-col gap-16 items-center justify-center h-[calc(100vh-80px)] opacity-85 transition-opacity duration-500',
+        loading && 'opacity-0'
+      )}
+    >
       <div className="flex flex-col gap-6 text-center">
         <h2 className="font-bold text-6xl text-secondary">
           What game I would play today?
@@ -31,6 +42,7 @@ export const AIAdvisor = () => {
           variant={'ghost'}
           size={'icon'}
           className="absolute bottom-4 right-4 text-secondary"
+          onClick={() => onSubmit(prompt)}
         >
           <SendHorizontal className="min-h-6 min-w-6" />
         </Button>
