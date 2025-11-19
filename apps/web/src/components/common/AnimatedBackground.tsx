@@ -86,7 +86,7 @@ export function AnimatedBackground() {
 
     window.addEventListener('mousemove', handleMouseMove);
 
-    const animate = () => {
+    const animateBackground = () => {
       const delta = clock.getDelta();
       const elapsed = clock.getElapsedTime();
 
@@ -169,10 +169,10 @@ export function AnimatedBackground() {
       positionAttr.needsUpdate = true;
 
       renderer.render(scene, camera);
-      animationFrameId = requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animateBackground);
     };
 
-    animate();
+    animateBackground();
 
     const handleResize = () => {
       if (!container) return;
