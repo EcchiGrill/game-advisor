@@ -1,8 +1,23 @@
-import { TestModule } from './models/test/test.module';
-import { PrismaModule } from './prisma/prisma.module';
 import { Module } from '@nestjs/common';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { join } from 'path';
+import { ConfigModule } from '@nestjs/config';
+import { PrismaModule } from './prisma/prisma.module';
+import { GameModule } from './models/game/game.module';
 
 @Module({
-  imports: [PrismaModule, TestModule],
+  imports: [
+    ConfigModule.forRoot(),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      introspection: true,
+      fieldResolverEnhancers: ['guards'],
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      buildSchemaOptions: { numberScalarMode: 'integer' },
+    }),
+    GameModule,
+    PrismaModule,
+  ],
 })
 export class AppModule {}

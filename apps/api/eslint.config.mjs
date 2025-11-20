@@ -43,7 +43,7 @@ const eslintConfig = [
     },
   },
   {
-    files: ['**/*.spec.ts', '**/*.test.ts'],
+    files: ['**/*.spec.ts', '**/*.test.ts', '**/*.e2e-spec.ts'],
     languageOptions: {
       parser: tsparser,
       parserOptions: {
