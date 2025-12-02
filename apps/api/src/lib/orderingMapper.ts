@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { Ordering } from '../types/ordering';
+import { Ordering } from '../models/game/types/ordering';
 
 /**
  * Maps ordering string format (e.g., '+name', '-rating') to Prisma's GameOrderByWithRelationInput
@@ -8,10 +8,8 @@ import { Ordering } from '../types/ordering';
  */
 export function orderingMapper(
   ordering?: Ordering
-): Prisma.GameOrderByWithRelationInput | undefined {
-  if (!ordering) {
-    return undefined;
-  }
+): Prisma.GameOrderByWithRelationInput {
+  if (!ordering) return;
 
   const direction = ordering[0] as '+' | '-';
   const field = ordering.slice(1);

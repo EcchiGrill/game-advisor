@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { normalizeRawgGame } from './lib/rawgMapper';
+import { normalizeRawgGame } from '../../lib/rawgMapper';
 import { LoadRawgQueryDto } from './rest/dtos/load-rawg/query.dto';
 import { LoadRawgBodyDto } from './rest/dtos/load-rawg/body.dto';
 import { RAWG_GAMES_API_LINK } from './const/rawgGamesApiLink';
@@ -25,7 +25,25 @@ export class GameService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getGames(query: Prisma.GameFindManyArgs) {
-    return this.prisma.game.findMany(query);
+    const games = await this.prisma.game.findMany(query);
+
+    const filteredGames = games.map((game) => ({
+      id: game.id,
+      name: game.name,
+      slug: game.slug,
+      description: game.description,
+      playtime: game.playtime,
+      rating: game.rating,
+      metacritic: game.metacritic,
+      coverUrl: game.coverUrl,
+      genres: game.genres,
+      platforms: game.platforms,
+      releasedAt: game.releasedAt,
+      createdAt: game.createdAt,
+      updatedAt: game.updatedAt,
+    }));
+
+    return filteredGames;
   }
 
   async loadRawgGames({ body, query }: LoadRawgParams) {
@@ -60,7 +78,11 @@ export class GameService {
           this.prisma.game.upsert({
             where: { slug: game.slug },
             create: game,
-            update: game,
+            update: {
+              ...game,
+              embedding: undefined,
+              description: undefined,
+            },
           })
         )
       );
@@ -96,7 +118,11 @@ export class GameService {
     await this.prisma.game.upsert({
       where: { slug: game.slug },
       create: normalizeRawgGame(game),
-      update: normalizeRawgGame(game),
+      update: {
+        ...normalizeRawgGame(game),
+        embedding: undefined,
+        description: undefined,
+      },
     });
 
     return normalizeRawgGame(game);

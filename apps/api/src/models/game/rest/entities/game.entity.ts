@@ -23,10 +23,16 @@ export class Game implements GameType {
   name: string;
 
   @ApiProperty({
-    example: 'thse-witcher-3-wild-hunt',
+    example: 'the-witcher-3-wild-hunt',
   })
   @IsString()
   slug: string;
+
+  @ApiProperty({
+    example: 'This is a description of the game.',
+  })
+  @IsString()
+  description: string;
 
   @ApiProperty({
     example: 100,
@@ -65,6 +71,8 @@ export class Game implements GameType {
   })
   @IsString({ each: true })
   platforms: string[];
+
+  embedding: number[];
 
   @ApiProperty({
     example: '2015-05-19',

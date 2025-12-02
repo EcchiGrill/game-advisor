@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ObjectType } from '@nestjs/graphql';
 import {
   IsDate,
   IsNumber,
@@ -24,6 +24,10 @@ export class Game implements GameType {
   slug: string;
 
   @Field()
+  @IsString()
+  description: string;
+
+  @Field()
   @IsNumber()
   playtime: number;
 
@@ -38,6 +42,7 @@ export class Game implements GameType {
 
   @Field()
   @IsUrl()
+  @IsOptional()
   coverUrl: string;
 
   @Field(() => [String])
@@ -47,6 +52,10 @@ export class Game implements GameType {
   @Field(() => [String])
   @IsString({ each: true })
   platforms: string[];
+
+  @Field(() => [Float])
+  @IsNumber({}, { each: true })
+  embedding: number[];
 
   @Field()
   @IsDate()

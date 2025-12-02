@@ -16,7 +16,7 @@ import { LoadRawgQueryDto } from './dtos/load-rawg/query.dto';
 import { Game } from './entities/game.entity';
 import { Prisma } from '@prisma/client';
 import { GameQueryDto } from './dtos/query.dto';
-import { orderingMapper } from '../lib/orderingMapper';
+import { orderingMapper } from '../../../lib/orderingMapper';
 
 interface LoadRawgGamesResponse {
   message: string;
@@ -36,7 +36,9 @@ export class GameController {
     description: 'Get all games',
     type: [Game],
   })
-  async getGames(@Query() query: GameQueryDto): Promise<Game[]> {
+  async getGames(
+    @Query() query: GameQueryDto
+  ): Promise<Omit<Game, 'embedding'>[]> {
     const prismaQuery: Prisma.GameFindManyArgs = {
       orderBy: orderingMapper(query.orderBy),
     };
