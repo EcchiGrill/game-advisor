@@ -15,8 +15,9 @@ import { LoadRawgBodyDto } from './dtos/load-rawg/body.dto';
 import { LoadRawgQueryDto } from './dtos/load-rawg/query.dto';
 import { Game } from './entities/game.entity';
 import { Prisma } from '@prisma/client';
-import { GameQueryDto } from './dtos/query.dto';
+import { GameQueryDto } from './dtos/game.query.dto';
 import { orderingMapper } from '../../../lib/orderingMapper';
+import { AdviceBodyDto } from './dtos/advice.body.dto';
 
 interface LoadRawgGamesResponse {
   message: string;
@@ -24,6 +25,8 @@ interface LoadRawgGamesResponse {
   totalFound: number;
   totalPages: number;
 }
+
+type GameResponse = Omit<Game, 'embedding'>;
 
 @ApiTags('Game')
 @Controller('game')
@@ -36,13 +39,21 @@ export class GameController {
     description: 'Get all games',
     type: [Game],
   })
-  async getGames(
-    @Query() query: GameQueryDto
-  ): Promise<Omit<Game, 'embedding'>[]> {
+  async getGames(@Query() query: GameQueryDto): Promise<GameResponse[]> {
     const prismaQuery: Prisma.GameFindManyArgs = {
       orderBy: orderingMapper(query.orderBy),
     };
     return await this.gameService.getGames(prismaQuery);
+  }
+
+  @Post('advice')
+  @ApiOkResponse({
+    description:
+      'Get AI advice for a game based on user prompt and preferences',
+    type: [Game],
+  })
+  async adviceGame(@Body() body: AdviceBodyDto): Promise<GameResponse> {
+    return await this.gameService.adviceGame(body);
   }
 
   @Post('load-rawg')

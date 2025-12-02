@@ -37,7 +37,7 @@ function configurePrismaClient() {
           const genres = data.genres as string[];
           const platforms = data.platforms as string[];
 
-          const text = `${data.name}. ${data.description}. Genres: ${genres.join(', ')}. Platforms: ${platforms.join(', ')}.`;
+          const text = `${data.name}. Genres: ${genres.join(', ')}. Platforms: ${platforms.join(', ')}.`;
 
           try {
             const embedding = await openai.embeddings.create({
@@ -87,7 +87,7 @@ function configurePrismaClient() {
 
             const genres = createData.genres as string[];
             const platforms = createData.platforms as string[];
-            const text = `${createData.name}. ${createData.description}. Genres: ${genres.join(', ')}. Platforms: ${platforms.join(', ')}.`;
+            const text = `${createData.name}. Genres: ${genres.join(', ')}. Platforms: ${platforms.join(', ')}.`;
 
             try {
               const embedding = await openai.embeddings.create({
@@ -138,12 +138,11 @@ function configurePrismaClient() {
 
           if (shouldBeEmbedded && existingGame) {
             const name = data.name ?? existingGame.name;
-            const description = data.description ?? existingGame.description;
             const genres = (data.genres ?? existingGame.genres) as string[];
             const platforms = (data.platforms ??
               existingGame.platforms) as string[];
 
-            const text = `${name}. ${description}. Genres: ${genres.join(', ')}. Platforms: ${platforms.join(', ')}.`;
+            const text = `${name}. Genres: ${genres.join(', ')}. Platforms: ${platforms.join(', ')}.`;
 
             try {
               const embedding = await openai.embeddings.create({
