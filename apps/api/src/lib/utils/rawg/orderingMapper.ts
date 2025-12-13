@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { Ordering } from '../models/game/types/ordering';
+import { Ordering } from '../../../models/game/types/ordering';
 
 /**
  * Maps ordering string format (e.g., '+name', '-rating') to Prisma's GameOrderByWithRelationInput

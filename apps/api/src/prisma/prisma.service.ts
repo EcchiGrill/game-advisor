@@ -1,51 +1,39 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
-import { delay } from '../lib/delay';
-import OpenAI from 'openai';
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { Game, PrismaClient } from '@prisma/client';
+import { findGame } from 'src/lib/utils/game/findGame';
+import { generateGameDescription } from 'src/lib/utils/game/generateGameDescription';
+import { generateGameEmbedding } from 'src/lib/utils/game/generateGameEmbedding';
 
 function configurePrismaClient() {
   return new PrismaClient().$extends({
     query: {
       game: {
         async create({ args, query }) {
-          const { data } = args;
+          const game = args.data as Game;
 
-          if (!data.description || data.description === '') {
+          const { name, genres, description, platforms } = game;
+
+          if (!description || description === '') {
             try {
-              const prompt = `Write a concise 2-3 sentence description for the video game "${data.name}". Answer in plain text.`;
+              const generatedDescription = await generateGameDescription(
+                name,
+                genres
+              );
 
-              const completion = await openai.chat.completions.create({
-                model: 'gpt-4.1-mini',
-                messages: [{ role: 'user', content: prompt }],
-                max_tokens: 150,
-              });
-
-              const description = completion.choices[0].message.content?.trim();
-
-              data.description = description;
-
-              await delay(1000);
+              game.description = generatedDescription;
             } catch (error) {
               console.error('Description generation failed:', error);
             }
           }
 
-          const genres = data.genres as string[];
-          const platforms = data.platforms as string[];
-
-          const text = `${data.name}. Genres: ${genres.join(', ')}. Platforms: ${platforms.join(', ')}.`;
-
           try {
-            const embedding = await openai.embeddings.create({
-              model: 'text-embedding-3-small',
-              input: text,
+            const embedding = await generateGameEmbedding({
+              name,
+              genres,
+              description,
+              platforms,
             });
-
-            data.embedding = embedding.data[0].embedding;
+            game.embedding = embedding.data[0].embedding;
           } catch (error) {
             console.error('Embedding generation failed:', error);
           }
@@ -54,50 +42,37 @@ function configurePrismaClient() {
         },
 
         async upsert({ args, query }) {
-          const prismaClient = new PrismaClient();
+          const game = args.create as Game;
 
-          const existingGame = await prismaClient.game.findUnique({
-            where: args.where,
-          });
+          const { name, genres, description, platforms } = game;
 
-          await prismaClient.$disconnect();
-
-          const createData = args.create;
+          const existingGame = await findGame(args);
 
           if (!existingGame) {
-            if (!createData.description || createData.description === '') {
+            if (!description || description === '') {
               try {
-                const prompt = `Write a concise 2-3 sentence description for the video game "${createData.name}". Answer in plain text.`;
+                const generatedDescription = await generateGameDescription(
+                  name,
+                  genres
+                );
 
-                const completion = await openai.chat.completions.create({
-                  model: 'gpt-4.1-mini',
-                  messages: [{ role: 'user', content: prompt }],
-                  max_tokens: 150,
-                });
-
-                const description =
-                  completion.choices[0].message.content?.trim();
-                createData.description = description;
-
-                await delay(1000);
+                game.description = generatedDescription;
               } catch (error) {
                 console.error('Description generation failed (upsert):', error);
               }
             }
 
-            const genres = createData.genres as string[];
-            const platforms = createData.platforms as string[];
-            const text = `${createData.name}. Genres: ${genres.join(', ')}. Platforms: ${platforms.join(', ')}.`;
-
             try {
-              const embedding = await openai.embeddings.create({
-                model: 'text-embedding-3-small',
-                input: text,
+              const embedding = await generateGameEmbedding({
+                name,
+                genres,
+                description,
+                platforms,
               });
 
-              createData.embedding = embedding.data[0].embedding;
-            } catch (err) {
-              console.error('Embedding generation failed (upsert):', err);
+              game.embedding = embedding.data[0].embedding;
+            } catch (error) {
+              console.error('Embedding generation failed (upsert):', error);
             }
           }
 
@@ -105,52 +80,51 @@ function configurePrismaClient() {
         },
 
         async update({ args, query }) {
-          const data = args.data;
+          const game = args.data as Game;
 
-          const prismaClient = new PrismaClient();
-          const existingGame = await prismaClient.game.findUnique({
-            where: args.where,
-          });
-          await prismaClient.$disconnect();
+          const existingGame = await findGame(args);
 
-          const affects = ['name', 'description', 'genres', 'platforms'];
+          const { name, genres, description, platforms } = game;
 
-          const shouldBeEmbedded = affects.some((field) => field in data);
+          const affectedFields = ['name', 'description', 'genres', 'platforms'];
 
-          if (data.name && data.name !== existingGame?.name) {
+          const shouldBeEmbedded = affectedFields.some(
+            (field) => field in game
+          );
+
+          if (name && name !== existingGame?.name) {
             try {
-              const prompt = `Write a concise 2-3 sentence description for the video game "${data.name}". Answer in plain text.`;
+              const generatedDescription = await generateGameDescription(
+                name,
+                genres
+              );
 
-              const completion = await openai.chat.completions.create({
-                model: 'gpt-4.1-mini',
-                messages: [{ role: 'user', content: prompt }],
-                max_tokens: 150,
-              });
-
-              const description = completion.choices[0].message.content?.trim();
-              data.description = description;
-
-              await delay(1000);
+              game.description = generatedDescription;
             } catch (error) {
               console.error('Description generation failed (update):', error);
             }
           }
 
           if (shouldBeEmbedded && existingGame) {
-            const name = data.name ?? existingGame.name;
-            const genres = (data.genres ?? existingGame.genres) as string[];
-            const platforms = (data.platforms ??
+            const newName = (name ?? existingGame.name) as string;
+
+            const newGenres = (genres ?? existingGame.genres) as string[];
+
+            const newPlatforms = (platforms ??
               existingGame.platforms) as string[];
 
-            const text = `${name}. Genres: ${genres.join(', ')}. Platforms: ${platforms.join(', ')}.`;
+            const newDescription = (description ??
+              existingGame.description) as string;
 
             try {
-              const embedding = await openai.embeddings.create({
-                model: 'text-embedding-3-small',
-                input: text,
+              const embedding = await generateGameEmbedding({
+                name: newName,
+                genres: newGenres,
+                description: newDescription,
+                platforms: newPlatforms,
               });
 
-              data.embedding = embedding.data[0].embedding;
+              game.embedding = embedding.data[0].embedding;
             } catch (error) {
               console.error('Embedding generation failed (update):', error);
             }

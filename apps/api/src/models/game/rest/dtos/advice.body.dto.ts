@@ -19,7 +19,7 @@ export class AdviceBodyDto {
 
   @ApiProperty({
     example:
-      'I am looking for a action game with a good story and a lot of exploration',
+      'I am looking for an action game with a good story and a lot of exploration',
     description: 'The prompt to use for the AI advice',
     required: true,
   })

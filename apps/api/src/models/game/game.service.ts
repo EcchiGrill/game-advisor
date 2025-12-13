@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { normalizeRawgGame } from '../../lib/rawgMapper';
+import { normalizeRawgGame } from '../../lib/utils/rawg/normalizeRawgGame';
 import { RAWG_GAMES_API_LINK } from './const/rawgGamesApiLink';
 import { RawgGame } from './types/rawgGame';
 import { RAWG_MAX_PAGE_SIZE } from './const/rawgMaxPageSize';
@@ -13,6 +13,7 @@ import { AdviceBodyDto, AIValue } from './rest/dtos/advice.body.dto';
 import { GoogleGenAI } from '@google/genai';
 import OpenAI from 'openai';
 import { selectedGameFields } from './const/selectedGameFields';
+import { validateGame } from '../../lib/utils/rawg/validateGame';
 
 interface LoadRawgParams {
   body: { limit?: number };
@@ -92,14 +93,16 @@ export class GameService {
     let pages = 0;
 
     let nextUrl: string | null =
-      `${RAWG_GAMES_API_LINK}&page_size=${RAWG_MAX_PAGE_SIZE}${orderingQuery}`;
+      `${RAWG_GAMES_API_LINK}&page_size=${RAWG_MAX_PAGE_SIZE}${orderingQuery}&exclude_additions=true`;
 
     while (nextUrl && imported < limit) {
       const response = (await fetch(nextUrl).then((r) =>
         r.json()
       )) as RawgGamesResponse;
 
-      const games = response.results.map(normalizeRawgGame);
+      const games = response.results
+        .map(normalizeRawgGame)
+        .filter((game) => !validateGame(game));
 
       if (!games.length) break;
 
@@ -172,12 +175,12 @@ export class GameService {
 
     // 0) Check user prompt for validity
     if (ai === AIValue.gemini) {
-      const isGameAdvice =
+      const isGamePrompt =
         (await gemini.models
           .generateContent({
             model: 'gemini-2.5-flash',
             contents: `              
-            Check if the user is asking for a video game recommendation.
+            Check if the user prompt can be applied to a video game recommendation.
             Return Boolean. true if yes, false if no. 
             User: ${prompt}`,
             config: {
@@ -187,11 +190,11 @@ export class GameService {
           })
           .then((response) => response.text)) === 'false';
 
-      if (!isGameAdvice) {
+      if (!isGamePrompt) {
         throw new BadRequestException('Invalid prompt');
       }
     } else {
-      const isGameAdvice = await openai.chat.completions
+      const isGamePrompt = await openai.chat.completions
         .create({
           model: 'gpt-4.1-mini',
           response_format: { type: 'text' },
@@ -203,7 +206,7 @@ export class GameService {
             {
               role: 'user',
               content: `
-              Check if the user is asking for a video game recommendation.
+              Check if the user prompt can be applied to a video game recommendation.
               Return Boolean. true if yes, false if no. 
               User: ${prompt}`,
             },
@@ -211,7 +214,7 @@ export class GameService {
         })
         .then((response) => response.choices[0].message.content === 'true');
 
-      if (!isGameAdvice) {
+      if (!isGamePrompt) {
         throw new BadRequestException('Invalid prompt');
       }
     }
@@ -238,13 +241,13 @@ export class GameService {
     }
 
     // 2) Semantic vector search
-    const candidates: Game[] = await this.prisma.$queryRawUnsafe(`
+    const candidates = await this.prisma.$queryRaw<Game[]>`
       SELECT *,
-             semantic_similarity(embedding, ARRAY[${embeddedPrompt}]::float8[]) AS similarity
+            semantic_similarity(embedding, ${embeddedPrompt}::float8[]) AS similarity
       FROM "Game"
       ORDER BY similarity DESC
       LIMIT 15;
-    `);
+      `;
 
     // 3) Convert candidates to readable list
     const candidatesList = candidates
@@ -263,7 +266,7 @@ export class GameService {
         ${prompt}
         Top-15 semantically relevant games: 
         ${candidatesList}
-        Pick the BEST MATCHING game. Prioritize games with high ratings. Use only open source data.
+        Pick the BEST MATCHING game. Prioritize games with high ratings. Prioritize games released in the last 5 years. Use only open source data.
         Return only the slug of the best matching game. Do not include any other text.`,
           config: {
             systemInstruction:
@@ -288,7 +291,7 @@ export class GameService {
           ${prompt}
           Top-15 semantically relevant games:  
           ${candidatesList}
-          Pick the BEST MATCHING game. Prioritize games with high ratings. Use only open source data.
+          Pick the BEST MATCHING game. Prioritize games with high ratings and released in the last 5 years. Use only open source data.
           Return only the slug of the best matching game. Do not include any other text.
           `,
             },

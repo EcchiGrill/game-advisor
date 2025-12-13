@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { RawgGame } from '../models/game/types/rawgGame';
+import { RawgGame } from '../../../models/game/types/rawgGame';
 
 /**
  * Map a RAWG game into data compatible with Prisma Game model.
