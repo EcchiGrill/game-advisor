@@ -1,6 +1,6 @@
 import { IsIn, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Ordering } from '../../types/ordering';
+import { Ordering } from '../../../types/ordering';
 
 enum OrderingValue {
   name = 'name',

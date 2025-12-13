@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
+  Patch,
   Post,
   Query,
   UsePipes,
@@ -15,9 +17,12 @@ import { LoadRawgBodyDto } from './dtos/load-rawg/body.dto';
 import { LoadRawgQueryDto } from './dtos/load-rawg/query.dto';
 import { Game } from './entities/game.entity';
 import { Prisma } from '@prisma/client';
-import { GameQueryDto } from './dtos/game.query.dto';
+import { GameQueryDto } from './dtos/game/game.query.dto';
 import { orderingMapper } from '../../../lib/orderingMapper';
 import { AdviceBodyDto } from './dtos/advice.body.dto';
+import { CreateGameDto } from './dtos/game/create-game.dto';
+import { UpdateGameDto } from './dtos/game/update-game.dto';
+import { GameResponse } from '../types/gameResponse';
 
 interface LoadRawgGamesResponse {
   message: string;
@@ -25,8 +30,6 @@ interface LoadRawgGamesResponse {
   totalFound: number;
   totalPages: number;
 }
-
-type GameResponse = Omit<Game, 'embedding'>;
 
 @ApiTags('Game')
 @Controller('game')
@@ -44,6 +47,45 @@ export class GameController {
       orderBy: orderingMapper(query.orderBy),
     };
     return await this.gameService.getGames(prismaQuery);
+  }
+
+  @Get(':slug')
+  @ApiOkResponse({
+    description: 'Get game by slug',
+    type: Game,
+  })
+  async getGame(@Param('slug') slug: string): Promise<GameResponse> {
+    return await this.gameService.getGame(slug);
+  }
+
+  @Post()
+  @ApiCreatedResponse({
+    description: 'Create game',
+    type: Game,
+  })
+  async createGame(@Body() body: CreateGameDto): Promise<GameResponse> {
+    return await this.gameService.createGame(body);
+  }
+
+  @Patch(':id')
+  @ApiOkResponse({
+    description: 'Update game by id',
+    type: Game,
+  })
+  async updateGame(
+    @Param('id') id: string,
+    @Body() body: UpdateGameDto
+  ): Promise<GameResponse> {
+    return await this.gameService.updateGame(id, body);
+  }
+
+  @Delete(':id')
+  @ApiOkResponse({
+    description: 'Remove game by id',
+    type: Game,
+  })
+  async removeGame(@Param('id') id: string): Promise<GameResponse> {
+    return await this.gameService.removeGame(id);
   }
 
   @Post('advice')

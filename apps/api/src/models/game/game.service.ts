@@ -5,8 +5,6 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { normalizeRawgGame } from '../../lib/rawgMapper';
-import { LoadRawgQueryDto } from './rest/dtos/load-rawg/query.dto';
-import { LoadRawgBodyDto } from './rest/dtos/load-rawg/body.dto';
 import { RAWG_GAMES_API_LINK } from './const/rawgGamesApiLink';
 import { RawgGame } from './types/rawgGame';
 import { RAWG_MAX_PAGE_SIZE } from './const/rawgMaxPageSize';
@@ -14,10 +12,11 @@ import { Game, Prisma } from '@prisma/client';
 import { AdviceBodyDto, AIValue } from './rest/dtos/advice.body.dto';
 import { GoogleGenAI } from '@google/genai';
 import OpenAI from 'openai';
+import { selectedGameFields } from './const/selectedGameFields';
 
 interface LoadRawgParams {
-  body: LoadRawgBodyDto;
-  query: LoadRawgQueryDto;
+  body: { limit?: number };
+  query: { ordering?: string };
 }
 
 interface RawgGamesResponse {
@@ -32,25 +31,53 @@ export class GameService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getGames(query: Prisma.GameFindManyArgs) {
-    const games = await this.prisma.game.findMany(query);
+    const games = await this.prisma.game.findMany({
+      ...query,
+      select: selectedGameFields,
+    });
 
-    const filteredGames = games.map((game) => ({
-      id: game.id,
-      name: game.name,
-      slug: game.slug,
-      description: game.description,
-      playtime: game.playtime,
-      rating: game.rating,
-      metacritic: game.metacritic,
-      coverUrl: game.coverUrl,
-      genres: game.genres,
-      platforms: game.platforms,
-      releasedAt: game.releasedAt,
-      createdAt: game.createdAt,
-      updatedAt: game.updatedAt,
-    }));
+    return games;
+  }
 
-    return filteredGames;
+  async getGame(slug: string) {
+    const game = await this.prisma.game.findUnique({
+      where: { slug },
+      select: selectedGameFields,
+    });
+
+    if (!game) {
+      throw new NotFoundException(`Game with slug "${slug}" not found`);
+    }
+
+    return game;
+  }
+
+  async createGame(body: Prisma.GameCreateInput) {
+    const game = await this.prisma.game.create({
+      data: body,
+      select: selectedGameFields,
+    });
+
+    return game;
+  }
+
+  async updateGame(id: string, body: Prisma.GameUpdateInput) {
+    const game = await this.prisma.game.update({
+      where: { id },
+      data: body,
+      select: selectedGameFields,
+    });
+
+    return game;
+  }
+
+  async removeGame(id: string) {
+    const game = await this.prisma.game.delete({
+      where: { id },
+      select: selectedGameFields,
+    });
+
+    return game;
   }
 
   async loadRawgGames({ body, query }: LoadRawgParams) {
