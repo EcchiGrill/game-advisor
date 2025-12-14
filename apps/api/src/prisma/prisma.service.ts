@@ -1,23 +1,27 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { Game, PrismaClient } from '@prisma/client';
-import { findGame } from 'src/lib/utils/game/findGame';
-import { generateGameDescription } from 'src/lib/utils/game/generateGameDescription';
-import { generateGameEmbedding } from 'src/lib/utils/game/generateGameEmbedding';
+import { Prisma, PrismaClient } from '@prisma/client';
+import { findGame } from '../lib/utils/game/findGame';
+import { generateGameDescription } from '../lib/utils/game/generateGameDescription';
+import { generateGameEmbedding } from '../lib/utils/game/generateGameEmbedding';
+import { extractNamesFromRelation } from 'src/lib/utils/extractNamesFromRelation';
 
 function configurePrismaClient() {
   return new PrismaClient().$extends({
     query: {
       game: {
         async create({ args, query }) {
-          const game = args.data as Game;
+          const game = args.data as Prisma.GameCreateInput;
 
           const { name, genres, description, platforms } = game;
+
+          const normalizedGenres = extractNamesFromRelation(genres);
+          const normalizedPlatforms = extractNamesFromRelation(platforms);
 
           if (!description || description === '') {
             try {
               const generatedDescription = await generateGameDescription(
                 name,
-                genres
+                normalizedGenres
               );
 
               game.description = generatedDescription;
@@ -29,9 +33,9 @@ function configurePrismaClient() {
           try {
             const embedding = await generateGameEmbedding({
               name,
-              genres,
+              genres: normalizedGenres,
               description,
-              platforms,
+              platforms: normalizedPlatforms,
             });
             game.embedding = embedding.data[0].embedding;
           } catch (error) {
@@ -42,9 +46,12 @@ function configurePrismaClient() {
         },
 
         async upsert({ args, query }) {
-          const game = args.create as Game;
+          const game = args.create as Prisma.GameCreateInput;
 
           const { name, genres, description, platforms } = game;
+
+          const normalizedGenres = extractNamesFromRelation(genres);
+          const normalizedPlatforms = extractNamesFromRelation(platforms);
 
           const existingGame = await findGame(args);
 
@@ -53,7 +60,7 @@ function configurePrismaClient() {
               try {
                 const generatedDescription = await generateGameDescription(
                   name,
-                  genres
+                  normalizedGenres
                 );
 
                 game.description = generatedDescription;
@@ -65,9 +72,9 @@ function configurePrismaClient() {
             try {
               const embedding = await generateGameEmbedding({
                 name,
-                genres,
+                genres: normalizedGenres,
                 description,
-                platforms,
+                platforms: normalizedPlatforms,
               });
 
               game.embedding = embedding.data[0].embedding;
@@ -80,11 +87,13 @@ function configurePrismaClient() {
         },
 
         async update({ args, query }) {
-          const game = args.data as Game;
+          const game = args.data as Prisma.GameUpdateInput;
 
           const existingGame = await findGame(args);
 
           const { name, genres, description, platforms } = game;
+
+          const normalizedGenres = extractNamesFromRelation(genres);
 
           const affectedFields = ['name', 'description', 'genres', 'platforms'];
 
@@ -95,8 +104,8 @@ function configurePrismaClient() {
           if (name && name !== existingGame?.name) {
             try {
               const generatedDescription = await generateGameDescription(
-                name,
-                genres
+                name as string,
+                normalizedGenres
               );
 
               game.description = generatedDescription;
@@ -108,10 +117,13 @@ function configurePrismaClient() {
           if (shouldBeEmbedded && existingGame) {
             const newName = (name ?? existingGame.name) as string;
 
-            const newGenres = (genres ?? existingGame.genres) as string[];
+            const newGenreNames = genres
+              ? extractNamesFromRelation(genres)
+              : existingGame.genres.map((g) => g.name);
 
-            const newPlatforms = (platforms ??
-              existingGame.platforms) as string[];
+            const newPlatformNames = platforms
+              ? extractNamesFromRelation(platforms)
+              : existingGame.platforms.map((p) => p.name);
 
             const newDescription = (description ??
               existingGame.description) as string;
@@ -119,9 +131,9 @@ function configurePrismaClient() {
             try {
               const embedding = await generateGameEmbedding({
                 name: newName,
-                genres: newGenres,
+                genres: newGenreNames,
                 description: newDescription,
-                platforms: newPlatforms,
+                platforms: newPlatformNames,
               });
 
               game.embedding = embedding.data[0].embedding;

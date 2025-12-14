@@ -6,6 +6,8 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  Max,
+  Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -51,7 +53,15 @@ export class UpdateGameDto {
     description: 'Game rating (0-5)',
     required: false,
   })
-  @IsNumber()
+  @IsNumber({
+    maxDecimalPlaces: 1,
+  })
+  @Max(5, {
+    message: 'Rating must be less than or equal to 5',
+  })
+  @Min(0, {
+    message: 'Rating must be greater than or equal to 0',
+  })
   @IsOptional()
   rating?: number;
 
@@ -60,7 +70,15 @@ export class UpdateGameDto {
     description: 'Metacritic score',
     required: false,
   })
-  @IsNumber()
+  @IsNumber({
+    maxDecimalPlaces: 0,
+  })
+  @Max(100, {
+    message: 'Metacritic score must be less than or equal to 100',
+  })
+  @Min(0, {
+    message: 'Metacritic score must be greater than or equal to 0',
+  })
   @IsOptional()
   metacritic?: number;
 

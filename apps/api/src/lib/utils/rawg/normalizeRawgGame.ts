@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { RawgGame } from '../../../models/game/types/rawgGame';
+import { RawgGame } from '../../../types/rawgGame';
 
 /**
  * Map a RAWG game into data compatible with Prisma Game model.
@@ -18,14 +18,24 @@ export function normalizeRawgGame(game: RawgGame): Prisma.GameCreateInput {
 
   const data: Prisma.GameCreateInput = {
     name: game.name,
-    description: '',
     slug: game.slug,
+    description: '',
     playtime: game.playtime,
     rating: game.rating,
     metacritic: game.metacritic,
     coverUrl,
-    genres,
-    platforms,
+    genres: {
+      connectOrCreate: genres.map((name) => ({
+        where: { name },
+        create: { name },
+      })),
+    },
+    platforms: {
+      connectOrCreate: platforms.map((name) => ({
+        where: { name },
+        create: { name },
+      })),
+    },
     releasedAt,
   };
 

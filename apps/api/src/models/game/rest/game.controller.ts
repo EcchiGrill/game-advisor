@@ -13,8 +13,8 @@ import {
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { GameService } from '../game.service';
-import { LoadRawgBodyDto } from './dtos/load-rawg/body.dto';
-import { LoadRawgQueryDto } from './dtos/load-rawg/query.dto';
+import { LoadRawgBodyDto } from './dtos/rawg/body.dto';
+import { LoadRawgQueryDto } from './dtos/rawg/query.dto';
 import { Game } from './entities/game.entity';
 import { Prisma } from '@prisma/client';
 import { GameQueryDto } from './dtos/game/game.query.dto';
@@ -22,7 +22,7 @@ import { orderingMapper } from '../../../lib/utils/rawg/orderingMapper';
 import { AdviceBodyDto } from './dtos/advice.body.dto';
 import { CreateGameDto } from './dtos/game/create-game.dto';
 import { UpdateGameDto } from './dtos/game/update-game.dto';
-import { GameResponse } from '../types/gameResponse';
+import { GameResponse } from '../../../types/gameResponse';
 
 interface LoadRawgGamesResponse {
   message: string;

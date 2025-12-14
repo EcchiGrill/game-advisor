@@ -5,7 +5,8 @@ import { join } from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { GameModule } from './models/game/game.module';
-
+import { GenreModule } from './models/genre/genre.module';
+import { PlatformModule } from './models/platform/platform.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -18,6 +19,8 @@ import { GameModule } from './models/game/game.module';
     }),
     GameModule,
     PrismaModule,
+    GenreModule,
+    PlatformModule,
   ],
 })
 export class AppModule {}

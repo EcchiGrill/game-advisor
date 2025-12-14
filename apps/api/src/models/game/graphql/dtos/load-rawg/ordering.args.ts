@@ -1,6 +1,6 @@
 import { Field, InputType, PartialType } from '@nestjs/graphql';
 import { Prisma } from '@prisma/client';
-import { SortOrder } from './../../../types/sortOrder';
+import { SortOrder } from '../../../../../types/sortOrder';
 
 @InputType()
 class OrderingInputStrict implements Prisma.GameOrderByWithRelationInput {

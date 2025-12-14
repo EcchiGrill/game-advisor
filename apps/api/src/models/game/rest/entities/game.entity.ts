@@ -5,11 +5,13 @@ import {
   IsString,
   IsUrl,
   IsUUID,
+  Max,
+  Min,
 } from 'class-validator';
-import { Game as GameType } from '@prisma/client';
+import { GameWithRelations } from '../../../../types/gameWithRelations';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class Game implements GameType {
+export class Game implements GameWithRelations {
   @ApiProperty({
     example: '4e8b9963-f72d-4887-9678-48c3ff26d60e',
   })
@@ -43,15 +45,25 @@ export class Game implements GameType {
   @ApiProperty({
     example: 4.5,
   })
-  @IsNumber()
+  @IsNumber({
+    maxDecimalPlaces: 1,
+  })
   rating: number;
 
   @ApiProperty({
     example: 95,
     required: false,
   })
+  @IsNumber({
+    maxDecimalPlaces: 0,
+  })
+  @Max(100, {
+    message: 'Metacritic score must be less than or equal to 100',
+  })
+  @Min(0, {
+    message: 'Metacritic score must be greater than or equal to 0',
+  })
   @IsOptional()
-  @IsNumber()
   metacritic: number;
 
   @ApiProperty({

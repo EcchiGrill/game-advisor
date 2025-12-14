@@ -6,6 +6,8 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  Max,
+  Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -42,7 +44,15 @@ export class CreateGameDto {
     example: 4.5,
     description: 'Game rating (0-5)',
   })
-  @IsNumber()
+  @IsNumber({
+    maxDecimalPlaces: 1,
+  })
+  @Max(5, {
+    message: 'Rating must be less than or equal to 5',
+  })
+  @Min(0, {
+    message: 'Rating must be greater than or equal to 0',
+  })
   rating: number;
 
   @ApiProperty({
@@ -50,7 +60,15 @@ export class CreateGameDto {
     description: 'Metacritic score',
     required: false,
   })
-  @IsNumber()
+  @IsNumber({
+    maxDecimalPlaces: 0,
+  })
+  @Max(100, {
+    message: 'Metacritic score must be less than or equal to 100',
+  })
+  @Min(0, {
+    message: 'Metacritic score must be greater than or equal to 0',
+  })
   @IsOptional()
   metacritic?: number;
 

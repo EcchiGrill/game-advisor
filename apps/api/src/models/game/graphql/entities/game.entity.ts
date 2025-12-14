@@ -7,10 +7,10 @@ import {
   IsUrl,
   IsUUID,
 } from 'class-validator';
-import { Game as GameType } from '@prisma/client';
+import { GameWithRelations } from '../../../../types/gameWithRelations';
 
 @ObjectType()
-export class Game implements GameType {
+export class Game implements GameWithRelations {
   @Field()
   @IsUUID()
   id: string;
@@ -32,11 +32,15 @@ export class Game implements GameType {
   playtime: number;
 
   @Field()
-  @IsNumber()
+  @IsNumber({
+    maxDecimalPlaces: 1,
+  })
   rating: number;
 
   @Field()
-  @IsNumber()
+  @IsNumber({
+    maxDecimalPlaces: 0,
+  })
   @IsOptional()
   metacritic: number;
 

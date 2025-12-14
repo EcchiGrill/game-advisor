@@ -1,5 +1,5 @@
 import { Field, InputType, PartialType } from '@nestjs/graphql';
-import { SortOrder } from '../../../types/sortOrder';
+import { SortOrder } from '../../../../../types/sortOrder';
 import { Prisma } from '@prisma/client';
 
 @InputType()

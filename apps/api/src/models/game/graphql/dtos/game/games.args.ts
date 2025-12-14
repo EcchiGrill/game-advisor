@@ -6,7 +6,7 @@ import {
 } from '@nestjs/graphql';
 import { OrderByInput } from './order-by.args';
 import { Prisma } from '@prisma/client';
-import { SortOrder } from '../../../types/sortOrder';
+import { SortOrder } from '../../../../../types/sortOrder';
 
 registerEnumType(SortOrder, {
   name: 'SortOrder',

@@ -5,15 +5,19 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { normalizeRawgGame } from '../../lib/utils/rawg/normalizeRawgGame';
-import { RAWG_GAMES_API_LINK } from './const/rawgGamesApiLink';
-import { RawgGame } from './types/rawgGame';
-import { RAWG_MAX_PAGE_SIZE } from './const/rawgMaxPageSize';
-import { Game, Prisma } from '@prisma/client';
+import { RAWG_GAMES_API_LINK } from '../../const/rawgGamesApiLink';
+import { RawgGame } from '../../types/rawgGame';
+import { RAWG_MAX_PAGE_SIZE } from '../../const/rawgMaxPageSize';
+import { Prisma } from '@prisma/client';
 import { AdviceBodyDto, AIValue } from './rest/dtos/advice.body.dto';
 import { GoogleGenAI } from '@google/genai';
 import OpenAI from 'openai';
-import { selectedGameFields } from './const/selectedGameFields';
+import { selectedGameFields } from '../../const/selectedGameFields';
 import { validateGame } from '../../lib/utils/rawg/validateGame';
+import { CreateGameDto } from './rest/dtos/game/create-game.dto';
+import { UpdateGameDto } from './rest/dtos/game/update-game.dto';
+import { GameWithRelations } from '../../types/gameWithRelations';
+import { normalizeGame } from 'src/lib/utils/game/normalizeGame';
 
 interface LoadRawgParams {
   body: { limit?: number };
@@ -37,7 +41,9 @@ export class GameService {
       select: selectedGameFields,
     });
 
-    return games;
+    const normalizedGames = games.map(normalizeGame);
+
+    return normalizedGames;
   }
 
   async getGame(slug: string) {
@@ -50,26 +56,72 @@ export class GameService {
       throw new NotFoundException(`Game with slug "${slug}" not found`);
     }
 
-    return game;
+    const normalizedGame = normalizeGame(game);
+
+    return normalizedGame;
   }
 
-  async createGame(body: Prisma.GameCreateInput) {
+  async createGame(body: CreateGameDto) {
+    const { genres, platforms, ...rest } = body;
+
+    const gameData: Prisma.GameCreateInput = {
+      ...rest,
+      genres: {
+        connectOrCreate: genres.map((name) => ({
+          where: { name },
+          create: { name },
+        })),
+      },
+      platforms: {
+        connectOrCreate: platforms.map((name) => ({
+          where: { name },
+          create: { name },
+        })),
+      },
+    };
+
     const game = await this.prisma.game.create({
-      data: body,
+      data: gameData,
       select: selectedGameFields,
     });
 
-    return game;
+    const normalizedGame = normalizeGame(game);
+
+    return normalizedGame;
   }
 
-  async updateGame(id: string, body: Prisma.GameUpdateInput) {
+  async updateGame(id: string, body: UpdateGameDto) {
+    const { genres, platforms, ...rest } = body;
+
+    const gameData: Prisma.GameUpdateInput = {
+      ...rest,
+      ...(genres && {
+        genres: {
+          connectOrCreate: genres.map((name) => ({
+            where: { name },
+            create: { name },
+          })),
+        },
+      }),
+      ...(platforms && {
+        platforms: {
+          connectOrCreate: platforms.map((name) => ({
+            where: { name },
+            create: { name },
+          })),
+        },
+      }),
+    };
+
     const game = await this.prisma.game.update({
       where: { id },
-      data: body,
+      data: gameData,
       select: selectedGameFields,
     });
 
-    return game;
+    const normalizedGame = normalizeGame(game);
+
+    return normalizedGame;
   }
 
   async removeGame(id: string) {
@@ -78,7 +130,9 @@ export class GameService {
       select: selectedGameFields,
     });
 
-    return game;
+    const normalizedGame = normalizeGame(game);
+
+    return normalizedGame;
   }
 
   async loadRawgGames({ body, query }: LoadRawgParams) {
@@ -117,8 +171,8 @@ export class GameService {
             create: game,
             update: {
               ...game,
-              embedding: undefined,
               description: undefined,
+              embedding: undefined,
             },
           })
         )
@@ -152,13 +206,15 @@ export class GameService {
       throw new NotFoundException('Game not found');
     }
 
+    const normalizedGame = normalizeRawgGame(game);
+
     await this.prisma.game.upsert({
       where: { slug: game.slug },
-      create: normalizeRawgGame(game),
+      create: normalizedGame,
       update: {
-        ...normalizeRawgGame(game),
-        embedding: undefined,
+        ...normalizedGame,
         description: undefined,
+        embedding: undefined,
       },
     });
 
@@ -188,7 +244,7 @@ export class GameService {
                 'You are a professional game recommendation engine.',
             },
           })
-          .then((response) => response.text)) === 'false';
+          .then((response) => response.text)) === 'true';
 
       if (!isGamePrompt) {
         throw new BadRequestException('Invalid prompt');
@@ -241,7 +297,7 @@ export class GameService {
     }
 
     // 2) Semantic vector search
-    const candidates = await this.prisma.$queryRaw<Game[]>`
+    const candidates = await this.prisma.$queryRaw<GameWithRelations[]>`
       SELECT *,
             semantic_similarity(embedding, ${embeddedPrompt}::float8[]) AS similarity
       FROM "Game"

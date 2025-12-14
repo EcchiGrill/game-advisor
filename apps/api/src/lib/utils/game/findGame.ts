@@ -5,6 +5,10 @@ export const findGame = async (args: Prisma.GameFindUniqueArgs) => {
 
   const game = await prismaClient.game.findUnique({
     where: args.where,
+    include: {
+      genres: true,
+      platforms: true,
+    },
   });
 
   await prismaClient.$disconnect();
