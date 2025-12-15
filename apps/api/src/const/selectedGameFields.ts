@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 
-export const selectedGameFields = {
+export const SELECTED_GAME_FIELDS = {
   id: true,
   name: true,
   slug: true,

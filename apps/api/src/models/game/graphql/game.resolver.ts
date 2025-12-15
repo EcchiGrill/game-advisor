@@ -1,10 +1,10 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Game } from './entities/game.entity';
-import { GamesArgs } from './dtos/game/games.args';
+import { GameArgs } from './dtos/game/game.args';
 import { GameService } from '../game.service';
-import { LoadRawgGamesArgs } from './dtos/load-rawg/load-rawg-games.args';
+import { RawgGameArgs } from './dtos/rawg/rawg-game.args';
 import { AdviceGameArgs } from './dtos/advice.args';
-import { LoadRawgResponse } from './entities/load-rawg-response.entity';
+import { RawgResponse } from './entities/rawg-response.entity';
 import { CreateGameInput } from './dtos/game/create-game.input';
 import { UpdateGameInput } from './dtos/game/update-game.input';
 
@@ -13,7 +13,7 @@ export class GameResolver {
   constructor(private readonly gameService: GameService) {}
 
   @Query(() => [Game], { name: 'games' })
-  loadGames(@Args() args: GamesArgs) {
+  loadGames(@Args() args: GameArgs) {
     return this.gameService.getGames(args);
   }
 
@@ -46,8 +46,8 @@ export class GameResolver {
     return this.gameService.adviceGame(args);
   }
 
-  @Mutation(() => LoadRawgResponse, { name: 'loadRawgGames' })
-  loadRawgGames(@Args() args: LoadRawgGamesArgs) {
+  @Mutation(() => RawgResponse, { name: 'loadRawgGames' })
+  loadRawgGames(@Args() args: RawgGameArgs) {
     const ordering =
       args.orderBy && args.orderDirection
         ? `${args.orderDirection}${args.orderBy}`

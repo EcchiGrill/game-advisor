@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 
-export function validateGame(game: Prisma.GameCreateInput): boolean {
+export function validateRawgGame(game: Prisma.GameCreateInput): boolean {
   const cutoffYear = new Date().getFullYear() - 20;
   const releaseYear = new Date(game.releasedAt).getFullYear();
   const isOld = releaseYear < cutoffYear;

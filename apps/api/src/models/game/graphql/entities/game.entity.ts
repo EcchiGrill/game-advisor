@@ -7,7 +7,7 @@ import {
   IsUrl,
   IsUUID,
 } from 'class-validator';
-import { GameWithRelations } from '../../../../types/gameWithRelations';
+import { GameWithRelations } from 'src/types/gameWithRelations';
 
 @ObjectType()
 export class Game implements GameWithRelations {
@@ -37,14 +37,14 @@ export class Game implements GameWithRelations {
   })
   rating: number;
 
-  @Field()
+  @Field({ nullable: true })
   @IsNumber({
     maxDecimalPlaces: 0,
   })
   @IsOptional()
   metacritic: number;
 
-  @Field()
+  @Field({ nullable: true })
   @IsUrl()
   @IsOptional()
   coverUrl: string;

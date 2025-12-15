@@ -13,16 +13,15 @@ import {
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { GameService } from '../game.service';
-import { LoadRawgBodyDto } from './dtos/rawg/body.dto';
-import { LoadRawgQueryDto } from './dtos/rawg/query.dto';
+import { RawgBodyDto } from './dtos/rawg/body.dto';
+import { RawgQueryDto } from './dtos/rawg/query.dto';
 import { Game } from './entities/game.entity';
 import { Prisma } from '@prisma/client';
 import { GameQueryDto } from './dtos/game/game.query.dto';
-import { orderingMapper } from '../../../lib/utils/rawg/orderingMapper';
 import { AdviceBodyDto } from './dtos/advice.body.dto';
 import { CreateGameDto } from './dtos/game/create-game.dto';
 import { UpdateGameDto } from './dtos/game/update-game.dto';
-import { GameResponse } from '../../../types/gameResponse';
+import { GameResponse } from 'src/types/gameResponse';
 
 interface LoadRawgGamesResponse {
   message: string;
@@ -43,10 +42,7 @@ export class GameController {
     type: [Game],
   })
   async getGames(@Query() query: GameQueryDto): Promise<GameResponse[]> {
-    const prismaQuery: Prisma.GameFindManyArgs = {
-      orderBy: orderingMapper(query.orderBy),
-    };
-    return await this.gameService.getGames(prismaQuery);
+    return await this.gameService.getGames(query);
   }
 
   @Get(':slug')
@@ -111,8 +107,8 @@ export class GameController {
   })
   @HttpCode(201)
   async loadRawgGames(
-    @Query() query: LoadRawgQueryDto,
-    @Body() body: LoadRawgBodyDto
+    @Query() query: RawgQueryDto,
+    @Body() body: RawgBodyDto
   ): Promise<LoadRawgGamesResponse> {
     return await this.gameService.loadRawgGames({ body, query });
   }

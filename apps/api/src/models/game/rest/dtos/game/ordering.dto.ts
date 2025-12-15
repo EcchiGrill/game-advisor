@@ -1,13 +1,14 @@
-import { IsIn, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Ordering } from 'src/types/ordering';
+import { IsOptional } from 'class-validator';
+import { IsIn } from 'class-validator';
 import { ORDERINGS } from 'src/const/orderings';
+import { Ordering } from 'src/types/ordering';
 
-export class RawgQueryDto {
+export class GameOrderingDto {
   @ApiProperty({
     description:
       'Order results by a field. Use + for ascending or - for descending',
-    example: '-released',
+    example: '+name',
     required: false,
     enum: ORDERINGS,
   })
@@ -15,5 +16,5 @@ export class RawgQueryDto {
   @IsIn(ORDERINGS, {
     message: 'Ordering must be a valid field optionally prefixed with + or -',
   })
-  ordering?: Ordering;
+  orderBy?: Ordering;
 }

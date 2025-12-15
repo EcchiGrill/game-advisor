@@ -70,6 +70,7 @@ export class Game implements GameWithRelations {
     example: 'https://example.com/cover.jpg',
   })
   @IsUrl()
+  @IsOptional()
   coverUrl: string;
 
   @ApiProperty({

@@ -1,3 +1,4 @@
-type OrderingDirection = '+' | '-';
+import { OrderingDirection } from './enums/orderingDirection';
+import { OrderingValue } from './enums/orderingValue';
 
-export type Ordering<T extends string = string> = `${OrderingDirection}${T}`;
+export type Ordering = `${OrderingDirection}${OrderingValue}`;

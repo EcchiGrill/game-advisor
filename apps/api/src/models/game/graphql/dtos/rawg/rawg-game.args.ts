@@ -4,32 +4,19 @@ import {
   PartialType,
   registerEnumType,
 } from '@nestjs/graphql';
-
-enum OrderingValue {
-  name = 'name',
-  released = 'released',
-  added = 'added',
-  created = 'created',
-  updated = 'updated',
-  rating = 'rating',
-  metacritic = 'metacritic',
-}
-
-enum OrderingDirection {
-  asc = '+',
-  desc = '-',
-}
+import { OrderingDirection } from 'src/types/enums/orderingDirection';
+import { OrderingValue } from 'src/types/enums/orderingValue';
 
 registerEnumType(OrderingValue, {
-  name: 'OrderingValue',
+  name: 'RawgOrderingValue',
 });
 
 registerEnumType(OrderingDirection, {
-  name: 'OrderingDirection',
+  name: 'RawgOrderingDirection',
 });
 
 @ArgsType()
-class LoadRawgGamesArgsStrict {
+class RawgGameArgsStrict {
   @Field(() => OrderingValue, { nullable: true })
   orderBy?: OrderingValue;
 
@@ -41,4 +28,4 @@ class LoadRawgGamesArgsStrict {
 }
 
 @ArgsType()
-export class LoadRawgGamesArgs extends PartialType(LoadRawgGamesArgsStrict) {}
+export class RawgGameArgs extends PartialType(RawgGameArgsStrict) {}

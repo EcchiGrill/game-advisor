@@ -12,14 +12,21 @@ import { Prisma } from '@prisma/client';
 import { AdviceBodyDto, AIValue } from './rest/dtos/advice.body.dto';
 import { GoogleGenAI } from '@google/genai';
 import OpenAI from 'openai';
-import { selectedGameFields } from '../../const/selectedGameFields';
-import { validateGame } from '../../lib/utils/rawg/validateGame';
+import { SELECTED_GAME_FIELDS } from '../../const/selectedGameFields';
+import { validateRawgGame } from '../../lib/utils/rawg/validateRawgGame';
 import { CreateGameDto } from './rest/dtos/game/create-game.dto';
 import { UpdateGameDto } from './rest/dtos/game/update-game.dto';
 import { GameWithRelations } from '../../types/gameWithRelations';
-import { normalizeGame } from 'src/lib/utils/game/normalizeGame';
+import { normalizeGame } from '../../lib/utils/game/normalizeGame';
+import { computeGameFilter } from '../../lib/utils/game/computeGameFilter';
+import { computeGameOrdering } from '../../lib/utils/game/computeGameOrdering';
+import { GameQueryDto } from './rest/dtos/game/game.query.dto';
+import { GameArgs } from './graphql/dtos/game/game.args';
+import { GameFilters } from '../../types/gameFilters';
 
-interface LoadRawgParams {
+const NULLABLE_GAME_FIELDS = ['metacritic'];
+
+interface RawgParams {
   body: { limit?: number };
   query: { ordering?: string };
 }
@@ -35,13 +42,42 @@ interface RawgGamesResponse {
 export class GameService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getGames(query: Prisma.GameFindManyArgs) {
+  async getGames(query: GameQueryDto | GameArgs) {
+    let orderingQuery: Prisma.GameOrderByWithRelationInput;
+    let filterInput: GameFilters;
+
+    if ('filter' in query && query.filter !== undefined) {
+      const { orderBy, orderDirection, filter } = query as GameArgs;
+
+      if (orderBy) {
+        if (NULLABLE_GAME_FIELDS.includes(orderBy)) {
+          orderingQuery = {
+            [orderBy]: { sort: orderDirection, nulls: 'last' },
+          };
+        } else {
+          orderingQuery = { [orderBy]: orderDirection };
+        }
+      }
+
+      filterInput = filter || {};
+    } else {
+      const { orderBy, ...filter } = query as GameQueryDto;
+      orderingQuery = computeGameOrdering(orderBy);
+      filterInput = filter;
+    }
+
+    const filterQuery = computeGameFilter(filterInput);
+
     const games = await this.prisma.game.findMany({
-      ...query,
-      select: selectedGameFields,
+      orderBy: orderingQuery,
+      ...filterQuery,
+      where: {
+        ...filterQuery.where,
+      },
+      select: SELECTED_GAME_FIELDS,
     });
 
-    const normalizedGames = games.map(normalizeGame);
+    const normalizedGames = games.map((game) => normalizeGame(game));
 
     return normalizedGames;
   }
@@ -49,7 +85,7 @@ export class GameService {
   async getGame(slug: string) {
     const game = await this.prisma.game.findUnique({
       where: { slug },
-      select: selectedGameFields,
+      select: SELECTED_GAME_FIELDS,
     });
 
     if (!game) {
@@ -82,7 +118,7 @@ export class GameService {
 
     const game = await this.prisma.game.create({
       data: gameData,
-      select: selectedGameFields,
+      select: SELECTED_GAME_FIELDS,
     });
 
     const normalizedGame = normalizeGame(game);
@@ -116,7 +152,7 @@ export class GameService {
     const game = await this.prisma.game.update({
       where: { id },
       data: gameData,
-      select: selectedGameFields,
+      select: SELECTED_GAME_FIELDS,
     });
 
     const normalizedGame = normalizeGame(game);
@@ -127,7 +163,7 @@ export class GameService {
   async removeGame(id: string) {
     const game = await this.prisma.game.delete({
       where: { id },
-      select: selectedGameFields,
+      select: SELECTED_GAME_FIELDS,
     });
 
     const normalizedGame = normalizeGame(game);
@@ -135,7 +171,7 @@ export class GameService {
     return normalizedGame;
   }
 
-  async loadRawgGames({ body, query }: LoadRawgParams) {
+  async loadRawgGames({ body, query }: RawgParams) {
     const { limit } = body;
     const { ordering } = query;
 
@@ -156,7 +192,7 @@ export class GameService {
 
       const games = response.results
         .map(normalizeRawgGame)
-        .filter((game) => !validateGame(game));
+        .filter((game) => !validateRawgGame(game));
 
       if (!games.length) break;
 
