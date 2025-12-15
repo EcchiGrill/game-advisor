@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client';
+import { NULLABLE_GAME_FIELDS } from 'src/const/nullableGameFields';
 import { Ordering } from 'src/types/ordering';
 
 /**
@@ -15,7 +16,13 @@ export function computeGameOrdering(
 
   const prismaDirection = direction === '+' ? 'asc' : 'desc';
 
-  return field === 'metacritic'
-    ? { [field]: { sort: prismaDirection, nulls: 'last' } }
-    : { [field]: prismaDirection };
+  if (NULLABLE_GAME_FIELDS.includes(field)) {
+    return {
+      [field]: { sort: prismaDirection, nulls: 'last' },
+    };
+  }
+
+  return {
+    [field]: prismaDirection,
+  };
 }

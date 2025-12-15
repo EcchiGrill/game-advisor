@@ -23,8 +23,7 @@ import { computeGameOrdering } from '../../lib/utils/game/computeGameOrdering';
 import { GameQueryDto } from './rest/dtos/game/game.query.dto';
 import { GameArgs } from './graphql/dtos/game/game.args';
 import { GameFilters } from '../../types/gameFilters';
-
-const NULLABLE_GAME_FIELDS = ['metacritic'];
+import { NULLABLE_GAME_FIELDS } from 'src/const/nullableGameFields';
 
 interface RawgParams {
   body: { limit?: number };
