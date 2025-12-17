@@ -16,7 +16,6 @@ import { SELECTED_GAME_FIELDS } from '../../const/selectedGameFields';
 import { validateRawgGame } from '../../lib/utils/rawg/validateRawgGame';
 import { CreateGameDto } from './rest/dtos/game/create-game.dto';
 import { UpdateGameDto } from './rest/dtos/game/update-game.dto';
-import { GameWithRelations } from '../../types/game/gameWithRelations';
 import { normalizeGame } from '../../lib/utils/game/normalizeGame';
 import { computeGameFilter } from '../../lib/utils/game/computeGameFilter';
 import { computeGameOrdering } from '../../lib/utils/game/computeGameOrdering';
@@ -24,6 +23,8 @@ import { GameQueryDto } from './rest/dtos/game/game.query.dto';
 import { GameArgs } from './graphql/inputs/game/game.args';
 import { GameFilters } from '../../types/game/gameFilters';
 import { NULLABLE_GAME_FIELDS } from 'src/const/nullableGameFields';
+import { Preferences } from 'src/types/user/preferences';
+import { getAdvicePreferences } from '../../lib/utils/game/getAdvicePreferences';
 
 interface RawgParams {
   body: { limit?: number };
@@ -36,6 +37,13 @@ interface RawgGamesResponse {
   previous: string | null;
   results: RawgGame[];
 }
+
+type RawGameWithRelations = Prisma.GameGetPayload<{
+  include: {
+    genres: true;
+    platforms: true;
+  };
+}>;
 
 @Injectable()
 export class GameService {
@@ -256,8 +264,8 @@ export class GameService {
     return normalizeRawgGame(game);
   }
 
-  async adviceGame(body: AdviceBodyDto) {
-    const { ai, prompt } = body;
+  async adviceGame(body: AdviceBodyDto, userId?: string) {
+    const { ai, prompt, skippedGames } = body;
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const gemini = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -332,22 +340,96 @@ export class GameService {
     }
 
     // 2) Semantic vector search
-    const candidates = await this.prisma.$queryRaw<GameWithRelations[]>`
-      SELECT *,
-            semantic_similarity(embedding, ${embeddedPrompt}::float8[]) AS similarity
-      FROM "Game"
-      ORDER BY similarity DESC
-      LIMIT 15;
-      `;
+    const candidates = await this.prisma.$queryRaw<RawGameWithRelations[]>`
+      SELECT 
+        g.*,
+        semantic_similarity(embedding, ${embeddedPrompt}::float8[]) AS similarity,
+        COALESCE(
+          json_agg(DISTINCT jsonb_build_object(
+            'id', ge.id,
+            'name', ge.name
+          )) FILTER (WHERE ge.id IS NOT NULL),
+          '[]'::json
+        ) AS genres,
 
-    // 3) Convert candidates to readable list
-    const candidatesList = candidates
+        COALESCE(
+          json_agg(DISTINCT jsonb_build_object(
+            'id', p.id,
+            'name', p.name
+          )) FILTER (WHERE p.id IS NOT NULL),
+          '[]'::json
+        ) AS platforms
+
+        FROM "Game" g
+
+        LEFT JOIN "_GameToGenre" gg ON gg."A" = g.id
+        LEFT JOIN "Genre" ge ON ge.id = gg."B"
+
+        LEFT JOIN "_GameToPlatform" gp ON gp."A" = g.id
+        LEFT JOIN "Platform" p ON p.id = gp."B"
+
+        GROUP BY g.id
+        ORDER BY similarity DESC
+        LIMIT 15;
+    `;
+
+    // 3) Apply user preferences
+    let filteredCandidates: RawGameWithRelations[] = candidates;
+    let userPreferences: Record<
+      keyof Omit<Preferences, 'chosenGames'>,
+      string[]
+    > | null = null;
+
+    if (userId) {
+      const { preferences } = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          preferences: {
+            select: {
+              platforms: true,
+              favoriteGames: true,
+              completedGames: true,
+              bannedGames: true,
+            },
+          },
+        },
+      });
+
+      const platformNames = preferences.platforms.map(
+        (platform) => platform.name
+      );
+      const favoriteGameNames = preferences.favoriteGames.map(
+        (game) => game.name
+      );
+      const completedGameNames = preferences.completedGames.map(
+        (game) => game.name
+      );
+      const bannedGameNames = preferences.bannedGames.map((game) => game.name);
+
+      userPreferences = {
+        platforms: platformNames,
+        favoriteGames: favoriteGameNames,
+        completedGames: completedGameNames,
+        bannedGames: bannedGameNames,
+      };
+
+      filteredCandidates = candidates.filter(
+        (game) => !bannedGameNames.includes(game.name)
+      );
+    }
+
+    const promptPreferences = userPreferences
+      ? getAdvicePreferences({ ...userPreferences })
+      : '';
+
+    // 4) Convert candidates to readable list
+    const candidatesList = filteredCandidates
       .map((game, index) => `${index + 1}. ${game.name} — slug: ${game.slug}`)
       .join('\n');
 
     let result: string;
 
-    // 4) AI rerank
+    // 5) AI rerank
     if (ai === AIValue.gemini) {
       result = await gemini.models
         .generateContent({
@@ -355,6 +437,9 @@ export class GameService {
           contents: `
         User prompt: 
         ${prompt}
+        User preferences:
+        ${promptPreferences}
+        ${skippedGames?.length > 0 ? `- Skipped games: ${skippedGames.join(', ')}` : ''}
         Top-15 semantically relevant games: 
         ${candidatesList}
         Pick the BEST MATCHING game. Prioritize games with high ratings. Prioritize games released in the last 5 years. Use only open source data.
@@ -380,6 +465,9 @@ export class GameService {
               content: `
           User prompt: 
           ${prompt}
+          User preferences:
+          ${promptPreferences}
+          ${skippedGames?.length > 0 ? `- Skipped games: ${skippedGames.join(', ')}` : ''}
           Top-15 semantically relevant games:  
           ${candidatesList}
           Pick the BEST MATCHING game. Prioritize games with high ratings and released in the last 5 years. Use only open source data.
@@ -392,26 +480,14 @@ export class GameService {
     }
 
     // 5) Fetch final game details
-    const game = candidates.find((game) => game.slug === result);
+    const game = filteredCandidates.find((game) => game.slug === result);
 
     if (!game) {
       throw new NotFoundException('No game found!');
     }
 
-    return {
-      id: game.id,
-      name: game.name,
-      slug: game.slug,
-      description: game.description,
-      playtime: game.playtime,
-      rating: game.rating,
-      metacritic: game.metacritic,
-      coverUrl: game.coverUrl,
-      genres: game.genres,
-      platforms: game.platforms,
-      releasedAt: game.releasedAt,
-      createdAt: game.createdAt,
-      updatedAt: game.updatedAt,
-    };
+    const normalizedGame = normalizeGame(game!);
+
+    return normalizedGame;
   }
 }

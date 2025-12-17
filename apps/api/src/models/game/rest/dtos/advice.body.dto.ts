@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsIn, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsArray,
+  IsIn,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 export enum AIValue {
   gemini = 'gemini',
@@ -26,4 +32,14 @@ export class AdviceBodyDto {
   @IsString()
   @MinLength(3)
   prompt: string;
+
+  @ApiProperty({
+    example: ['game-1', 'game-2', 'game-3'],
+    description: 'The games to skip from the advice',
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  skippedGames?: string[];
 }

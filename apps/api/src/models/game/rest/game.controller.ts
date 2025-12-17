@@ -22,6 +22,8 @@ import { AdviceBodyDto } from './dtos/advice.body.dto';
 import { CreateGameDto } from './dtos/game/create-game.dto';
 import { UpdateGameDto } from './dtos/game/update-game.dto';
 import { GameWithRelations } from 'src/types/game/gameWithRelations';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { User } from '@prisma/client';
 
 interface LoadRawgGamesResponse {
   message: string;
@@ -90,8 +92,11 @@ export class GameController {
       'Get AI advice for a game based on user prompt and preferences',
     type: [Game],
   })
-  async adviceGame(@Body() body: AdviceBodyDto): Promise<GameWithRelations> {
-    return await this.gameService.adviceGame(body);
+  async adviceGame(
+    @Body() body: AdviceBodyDto,
+    @CurrentUser() user?: User
+  ): Promise<GameWithRelations> {
+    return await this.gameService.adviceGame(body, user?.id);
   }
 
   @Post('load-rawg')
