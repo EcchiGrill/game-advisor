@@ -10,4 +10,15 @@ export const config = new DocumentBuilder()
     You might also use <a href="https://studio.apollographql.com/sandbox/explorer" target="_blank">Apollo explorer</a> for better user experience.`
   )
   .setVersion('1.0')
+  .addBearerAuth(
+    {
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      name: 'JWT',
+      description: 'Enter JWT token',
+      in: 'header',
+    },
+    'JWT-auth'
+  )
   .build();

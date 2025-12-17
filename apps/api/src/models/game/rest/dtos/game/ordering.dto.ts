@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional } from 'class-validator';
 import { IsIn } from 'class-validator';
 import { ORDERINGS } from 'src/const/orderings';
-import { Ordering } from 'src/types/ordering';
+import { Ordering } from 'src/types/game/ordering';
 
 export class GameOrderingDto {
   @ApiProperty({

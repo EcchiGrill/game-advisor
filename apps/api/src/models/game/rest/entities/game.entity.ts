@@ -8,10 +8,9 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { GameWithRelations } from '../../../../types/gameWithRelations';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class Game implements GameWithRelations {
+export class Game {
   @ApiProperty({
     example: '4e8b9963-f72d-4887-9678-48c3ff26d60e',
   })
@@ -84,8 +83,6 @@ export class Game implements GameWithRelations {
   })
   @IsString({ each: true })
   platforms: string[];
-
-  embedding: number[];
 
   @ApiProperty({
     example: '2015-05-19',

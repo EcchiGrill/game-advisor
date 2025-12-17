@@ -1,5 +1,5 @@
 import { OrderingValue } from 'src/types/enums/orderingValue';
-import { Ordering } from 'src/types/ordering';
+import { Ordering } from 'src/types/game/ordering';
 
 const ORDERING_DIRECTIONS = ['+', '-'] as const;
 const ORDERING_VALUES = Object.values(OrderingValue);

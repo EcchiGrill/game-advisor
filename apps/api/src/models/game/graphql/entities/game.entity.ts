@@ -7,10 +7,9 @@ import {
   IsUrl,
   IsUUID,
 } from 'class-validator';
-import { GameWithRelations } from 'src/types/gameWithRelations';
 
 @ObjectType()
-export class Game implements GameWithRelations {
+export class Game {
   @Field()
   @IsUUID()
   id: string;
@@ -56,8 +55,6 @@ export class Game implements GameWithRelations {
   @Field(() => [String])
   @IsString({ each: true })
   platforms: string[];
-
-  embedding: number[];
 
   @Field()
   @IsDate()

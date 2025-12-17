@@ -1,6 +1,6 @@
 import { IsIn, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Ordering } from 'src/types/ordering';
+import { Ordering } from 'src/types/game/ordering';
 import { ORDERINGS } from 'src/const/orderings';
 
 export class RawgQueryDto {

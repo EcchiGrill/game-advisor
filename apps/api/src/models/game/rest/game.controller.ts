@@ -21,7 +21,7 @@ import { GameQueryDto } from './dtos/game/game.query.dto';
 import { AdviceBodyDto } from './dtos/advice.body.dto';
 import { CreateGameDto } from './dtos/game/create-game.dto';
 import { UpdateGameDto } from './dtos/game/update-game.dto';
-import { GameResponse } from 'src/types/gameResponse';
+import { GameWithRelations } from 'src/types/game/gameWithRelations';
 
 interface LoadRawgGamesResponse {
   message: string;
@@ -41,7 +41,7 @@ export class GameController {
     description: 'Get all games',
     type: [Game],
   })
-  async getGames(@Query() query: GameQueryDto): Promise<GameResponse[]> {
+  async getGames(@Query() query: GameQueryDto): Promise<GameWithRelations[]> {
     return await this.gameService.getGames(query);
   }
 
@@ -50,7 +50,7 @@ export class GameController {
     description: 'Get game by slug',
     type: Game,
   })
-  async getGame(@Param('slug') slug: string): Promise<GameResponse> {
+  async getGame(@Param('slug') slug: string): Promise<GameWithRelations> {
     return await this.gameService.getGame(slug);
   }
 
@@ -59,7 +59,7 @@ export class GameController {
     description: 'Create game',
     type: Game,
   })
-  async createGame(@Body() body: CreateGameDto): Promise<GameResponse> {
+  async createGame(@Body() body: CreateGameDto): Promise<GameWithRelations> {
     return await this.gameService.createGame(body);
   }
 
@@ -71,7 +71,7 @@ export class GameController {
   async updateGame(
     @Param('id') id: string,
     @Body() body: UpdateGameDto
-  ): Promise<GameResponse> {
+  ): Promise<GameWithRelations> {
     return await this.gameService.updateGame(id, body);
   }
 
@@ -80,7 +80,7 @@ export class GameController {
     description: 'Remove game by id',
     type: Game,
   })
-  async removeGame(@Param('id') id: string): Promise<GameResponse> {
+  async removeGame(@Param('id') id: string): Promise<GameWithRelations> {
     return await this.gameService.removeGame(id);
   }
 
@@ -90,7 +90,7 @@ export class GameController {
       'Get AI advice for a game based on user prompt and preferences',
     type: [Game],
   })
-  async adviceGame(@Body() body: AdviceBodyDto): Promise<GameResponse> {
+  async adviceGame(@Body() body: AdviceBodyDto): Promise<GameWithRelations> {
     return await this.gameService.adviceGame(body);
   }
 

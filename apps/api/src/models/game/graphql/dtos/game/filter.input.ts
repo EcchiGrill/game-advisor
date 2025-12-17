@@ -1,6 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsOptional, IsString, IsInt, Min, Max } from 'class-validator';
-import { GameFilters } from 'src/types/gameFilters';
+import { GameFilters } from 'src/types/game/gameFilters';
 
 @InputType()
 export class GameFilterInput implements GameFilters {

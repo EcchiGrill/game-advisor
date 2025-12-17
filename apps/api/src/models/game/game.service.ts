@@ -6,7 +6,7 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { normalizeRawgGame } from '../../lib/utils/rawg/normalizeRawgGame';
 import { RAWG_GAMES_API_LINK } from '../../const/rawgGamesApiLink';
-import { RawgGame } from '../../types/rawgGame';
+import { RawgGame } from '../../types/game/rawgGame';
 import { RAWG_MAX_PAGE_SIZE } from '../../const/rawgMaxPageSize';
 import { Prisma } from '@prisma/client';
 import { AdviceBodyDto, AIValue } from './rest/dtos/advice.body.dto';
@@ -16,13 +16,13 @@ import { SELECTED_GAME_FIELDS } from '../../const/selectedGameFields';
 import { validateRawgGame } from '../../lib/utils/rawg/validateRawgGame';
 import { CreateGameDto } from './rest/dtos/game/create-game.dto';
 import { UpdateGameDto } from './rest/dtos/game/update-game.dto';
-import { GameWithRelations } from '../../types/gameWithRelations';
+import { GameWithRelations } from '../../types/game/gameWithRelations';
 import { normalizeGame } from '../../lib/utils/game/normalizeGame';
 import { computeGameFilter } from '../../lib/utils/game/computeGameFilter';
 import { computeGameOrdering } from '../../lib/utils/game/computeGameOrdering';
 import { GameQueryDto } from './rest/dtos/game/game.query.dto';
 import { GameArgs } from './graphql/dtos/game/game.args';
-import { GameFilters } from '../../types/gameFilters';
+import { GameFilters } from '../../types/game/gameFilters';
 import { NULLABLE_GAME_FIELDS } from 'src/const/nullableGameFields';
 
 interface RawgParams {

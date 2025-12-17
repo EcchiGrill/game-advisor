@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { GameFilters } from '../../../types/gameFilters';
+import { GameFilters } from '../../../types/game/gameFilters';
 
 type WhereInput = Prisma.GameWhereInput;
 
