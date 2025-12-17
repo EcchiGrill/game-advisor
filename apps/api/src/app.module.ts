@@ -10,6 +10,7 @@ import { PlatformModule } from './models/platform/platform.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './models/user/user.module';
 import { MailModule } from './mail/mail.module';
+import { FeedbackModule } from './models/feedback/feedback.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { MailModule } from './mail/mail.module';
     GameModule,
     GenreModule,
     PlatformModule,
+    FeedbackModule,
   ],
 })
 export class AppModule {}

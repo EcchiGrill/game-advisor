@@ -1,12 +1,12 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Game } from './entities/game.entity';
-import { GameArgs } from './dtos/game/game.args';
+import { GameArgs } from './inputs/game/game.args';
 import { GameService } from '../game.service';
-import { RawgGameArgs } from './dtos/rawg/rawg-game.args';
-import { AdviceGameArgs } from './dtos/advice.args';
+import { RawgGameArgs } from './inputs/rawg/rawg-game.args';
+import { AdviceGameArgs } from './inputs/advice.args';
 import { RawgResponse } from './entities/rawg-response.entity';
-import { CreateGameInput } from './dtos/game/create-game.input';
-import { UpdateGameInput } from './dtos/game/update-game.input';
+import { CreateGameInput } from './inputs/game/create-game.input';
+import { UpdateGameInput } from './inputs/game/update-game.input';
 
 @Resolver(() => Game)
 export class GameResolver {

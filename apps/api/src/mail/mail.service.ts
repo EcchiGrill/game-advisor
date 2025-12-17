@@ -258,4 +258,83 @@ export class MailService {
 
     await this.transporter.sendMail(mailOptions);
   }
+
+  async sendFeedbackEmail(recipient: string, content: string): Promise<void> {
+    const messageId = `<${Date.now()}-feedback-@game-advisor>`;
+
+    const mailOptions: nodemailer.SendMailOptions = {
+      from: `"Game Advisor" <${process.env.GMAIL_USER}>`,
+      to: 'dmitry.oborsky@gmail.com',
+      subject: 'New Feedback Received - Game Advisor 📝',
+      messageId,
+      headers: {
+        'Message-ID': messageId,
+        Precedence: 'bulk',
+        'X-Mailer': 'Game Advisor',
+        'X-Auto-Response-Suppress': 'All',
+      },
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta name="color-scheme" content="dark">
+          <meta name="supported-color-schemes" content="dark">
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f0f0f; color: #ffffff; margin: 0; padding: 20px; }
+            .container { max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; padding: 40px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); }
+            .header { text-align: center; margin-bottom: 30px; }
+            .header h1 { color: #8b5cf6; margin: 0; font-size: 28px; }
+            .content { line-height: 1.6; color: #ffffff; }
+            .highlight { color: #8b5cf6; font-weight: 600; }
+            .feedback-box { background: rgba(139, 92, 246, 0.1); border-radius: 8px; padding: 20px; margin: 20px 0; border-left: 4px solid #8b5cf6; }
+            .recipient { color: #10b981; font-weight: 600; }
+            .timestamp { color: #c0c0c0; font-size: 12px; margin-top: 10px; }
+          </style>
+        </head>
+        <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f0f0f; color: #ffffff !important; margin: 0; padding: 20px;">
+          <div class="container" style="max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; padding: 40px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);">
+            <div class="header" style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #8b5cf6; margin: 0; font-size: 28px;">🎮 Game Advisor</h1>
+              <p style="color: #c0c0c0; margin: 5px 0 0 0; font-size: 14px;">New Feedback Received</p>
+            </div>
+            <div class="content" style="line-height: 1.6; color: #ffffff !important;">
+              <p style="color: #ffffff !important; margin: 0 0 16px 0;">You have received new feedback from a user:</p>
+
+              <div class="feedback-box" style="background: rgba(139, 92, 246, 0.1); border-radius: 8px; padding: 20px; margin: 20px 0; border-left: 4px solid #8b5cf6;">
+                <p style="color: #ffffff !important; margin: 0 0 12px 0;"><strong style="color: #ffffff">From:</strong> <span class="recipient" style="color: #10b981; font-weight: 600;">${recipient}</span></p>
+                <p style="color: #ffffff !important; margin: 0 0 12px 0;"><strong style="color: #ffffff">Message:</strong></p>
+                <p style="color: #ffffff !important; margin: 0; white-space: pre-wrap;">${content}</p>
+              </div>
+
+              <div class="timestamp" style="color: #c0c0c0; font-size: 12px; margin-top: 10px;">
+                Received at: ${new Date().toLocaleString()}
+              </div>
+            </div>
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-top:30px; width: 100%; min-height: 40px;">
+              <tr>
+                <td
+                  align="center"
+                  style="
+                    padding:20px 0 10px 0;
+                    border-top:1px solid #333;
+                    font-size:12px;
+                    color:#c0c0c0;
+                    line-height:1.5;
+                    -webkit-text-fill-color:#c0c0c0;
+                  "
+                >
+                  <p style="margin:0; padding:0;">
+                    © ${new Date().getFullYear()} Game Advisor. All rights reserved.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </body>
+        </html>
+      `,
+    };
+
+    await this.transporter.sendMail(mailOptions);
+  }
 }

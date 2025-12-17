@@ -21,7 +21,7 @@ import { normalizeGame } from '../../lib/utils/game/normalizeGame';
 import { computeGameFilter } from '../../lib/utils/game/computeGameFilter';
 import { computeGameOrdering } from '../../lib/utils/game/computeGameOrdering';
 import { GameQueryDto } from './rest/dtos/game/game.query.dto';
-import { GameArgs } from './graphql/dtos/game/game.args';
+import { GameArgs } from './graphql/inputs/game/game.args';
 import { GameFilters } from '../../types/game/gameFilters';
 import { NULLABLE_GAME_FIELDS } from 'src/const/nullableGameFields';
 

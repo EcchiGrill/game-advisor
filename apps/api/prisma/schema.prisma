@@ -75,3 +75,11 @@ model Platform {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Feedback {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  recipient String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

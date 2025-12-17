@@ -7,9 +7,10 @@ import {
   IsUrl,
   IsUUID,
 } from 'class-validator';
+import { GameWithRelations } from 'src/types/game/gameWithRelations';
 
 @ObjectType()
-export class Game {
+export class Game implements GameWithRelations {
   @Field()
   @IsUUID()
   id: string;
