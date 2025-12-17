@@ -40,6 +40,10 @@ const eslintConfig = [
     rules: {
       ...tseslint.configs.recommended.rules,
       '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
     },
   },
   {
@@ -62,6 +66,10 @@ const eslintConfig = [
     rules: {
       ...tseslint.configs.recommended.rules,
       '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
     },
   },
 ];

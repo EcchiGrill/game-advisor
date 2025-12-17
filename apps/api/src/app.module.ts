@@ -7,6 +7,11 @@ import { PrismaModule } from './prisma/prisma.module';
 import { GameModule } from './models/game/game.module';
 import { GenreModule } from './models/genre/genre.module';
 import { PlatformModule } from './models/platform/platform.module';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './models/user/user.module';
+import { MailModule } from './mail/mail.module';
+import { FeedbackModule } from './models/feedback/feedback.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -16,11 +21,16 @@ import { PlatformModule } from './models/platform/platform.module';
       fieldResolverEnhancers: ['guards'],
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       buildSchemaOptions: { numberScalarMode: 'integer' },
+      context: ({ req }) => ({ req }),
     }),
-    GameModule,
     PrismaModule,
+    MailModule,
+    AuthModule,
+    UserModule,
+    GameModule,
     GenreModule,
     PlatformModule,
+    FeedbackModule,
   ],
 })
 export class AppModule {}

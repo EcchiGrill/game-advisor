@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { GameFilters } from 'src/types/gameFilters';
+import { GameFilters } from 'src/types/game/gameFilters';
 
 export class GameFilterDto implements GameFilters {
   @ApiProperty({

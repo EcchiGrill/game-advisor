@@ -13,4 +13,7 @@ export class AdviceGameArgs {
 
   @Field(() => AIValue, { nullable: true })
   ai?: AIValue;
+
+  @Field(() => [String], { nullable: true })
+  skippedGames?: string[];
 }

@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { NULLABLE_GAME_FIELDS } from 'src/const/nullableGameFields';
-import { Ordering } from 'src/types/ordering';
+import { Ordering } from 'src/types/game/ordering';
 
 /**
  * Computes the ordering for the game query

@@ -1,12 +1,16 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
 import { Game } from './entities/game.entity';
-import { GameArgs } from './dtos/game/game.args';
+import { GameArgs } from './inputs/game/game.args';
 import { GameService } from '../game.service';
-import { RawgGameArgs } from './dtos/rawg/rawg-game.args';
-import { AdviceGameArgs } from './dtos/advice.args';
+import { RawgGameArgs } from './inputs/rawg/rawg-game.args';
+import { AdviceGameArgs } from './inputs/advice.args';
 import { RawgResponse } from './entities/rawg-response.entity';
-import { CreateGameInput } from './dtos/game/create-game.input';
-import { UpdateGameInput } from './dtos/game/update-game.input';
+import { CreateGameInput } from './inputs/game/create-game.input';
+import { UpdateGameInput } from './inputs/game/update-game.input';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { User } from '@prisma/client';
+import { OptionalJwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Resolver(() => Game)
 export class GameResolver {
@@ -42,8 +46,9 @@ export class GameResolver {
   }
 
   @Mutation(() => Game, { name: 'adviceGame' })
-  async adviceGame(@Args() args: AdviceGameArgs) {
-    return this.gameService.adviceGame(args);
+  @UseGuards(OptionalJwtAuthGuard)
+  async adviceGame(@Args() args: AdviceGameArgs, @CurrentUser() user?: User) {
+    return this.gameService.adviceGame(args, user?.id);
   }
 
   @Mutation(() => RawgResponse, { name: 'loadRawgGames' })
