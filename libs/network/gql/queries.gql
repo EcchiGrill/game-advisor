@@ -1,0 +1,350 @@
+mutation Register($input: RegisterDto!) {
+  register(input: $input) {
+    email
+    message
+  }
+}
+
+mutation ConfirmEmail($input: ConfirmEmailDto!) {
+  confirmEmail(input: $input) {
+    message
+  }
+}
+
+mutation Login($input: LoginDto!) {
+  login(input: $input) {
+    accessToken
+    user {
+      id
+      username
+      email
+      avatarUrl
+      isEmailConfirmed
+      preferences {
+        platforms
+        favoriteGames {
+          id
+          name
+          slug
+          description
+          playtime
+          rating
+          metacritic
+          coverUrl
+          genres
+          platforms
+          releasedAt
+          createdAt
+          updatedAt
+        }
+        completedGames {
+          id
+          name
+          slug
+          description
+          playtime
+          rating
+          metacritic
+          coverUrl
+          genres
+          platforms
+          releasedAt
+          createdAt
+          updatedAt
+        }
+        chosenGames {
+          id
+          name
+          slug
+          description
+          playtime
+          rating
+          metacritic
+          coverUrl
+          genres
+          platforms
+          releasedAt
+          createdAt
+          updatedAt
+        }
+        bannedGames {
+          id
+          name
+          slug
+          description
+          playtime
+          rating
+          metacritic
+          coverUrl
+          genres
+          platforms
+          releasedAt
+          createdAt
+          updatedAt
+        }
+      }
+      createdAt
+      updatedAt
+    }
+  }
+}
+
+query Profile {
+  profile {
+    id
+    username
+    email
+    avatarUrl
+    isEmailConfirmed
+    preferences {
+      platforms
+      favoriteGames {
+        id
+        name
+        slug
+        description
+        playtime
+        rating
+        metacritic
+        coverUrl
+        genres
+        platforms
+        releasedAt
+        createdAt
+        updatedAt
+      }
+      completedGames {
+        id
+        name
+        slug
+        description
+        playtime
+        rating
+        metacritic
+        coverUrl
+        genres
+        platforms
+        releasedAt
+        createdAt
+        updatedAt
+      }
+      chosenGames {
+        id
+        name
+        slug
+        description
+        playtime
+        rating
+        metacritic
+        coverUrl
+        genres
+        platforms
+        releasedAt
+        createdAt
+        updatedAt
+      }
+      bannedGames {
+        id
+        name
+        slug
+        description
+        playtime
+        rating
+        metacritic
+        coverUrl
+        genres
+        platforms
+        releasedAt
+        createdAt
+        updatedAt
+      }
+    }
+    createdAt
+    updatedAt
+  }
+}
+
+mutation UpdateProfile($input: UpdateUserInput!) {
+  updateProfile(input: $input) {
+    id
+    username
+    email
+    avatarUrl
+    isEmailConfirmed
+    preferences {
+      platforms
+      completedGames {
+        id
+        name
+        slug
+        description
+        playtime
+        rating
+        metacritic
+        coverUrl
+        genres
+        platforms
+        releasedAt
+        createdAt
+        updatedAt
+      }
+      chosenGames {
+        id
+        name
+        slug
+        description
+        playtime
+        rating
+        metacritic
+        coverUrl
+        genres
+        platforms
+        releasedAt
+        createdAt
+        updatedAt
+      }
+      bannedGames {
+        id
+        name
+        slug
+        description
+        playtime
+        rating
+        metacritic
+        coverUrl
+        genres
+        platforms
+        releasedAt
+        createdAt
+        updatedAt
+      }
+      favoriteGames {
+        id
+        name
+        slug
+        description
+        playtime
+        rating
+        metacritic
+        coverUrl
+        genres
+        platforms
+        releasedAt
+        createdAt
+        updatedAt
+      }
+    }
+    createdAt
+    updatedAt
+  }
+}
+
+mutation ForgotPassword($input: ForgotPasswordDto!) {
+  forgotPassword(input: $input) {
+    message
+  }
+}
+
+mutation ResetPassword($input: ResetPasswordDto!) {
+  resetPassword(input: $input) {
+    message
+  }
+}
+
+mutation ChangePassword($input: ChangePasswordInput!) {
+  changePassword(input: $input) {
+    message
+  }
+}
+
+mutation DeleteProfile {
+  deleteProfile {
+    message
+  }
+}
+
+mutation SubmitFeedback($input: SubmitFeedbackInput!) {
+  submitFeedback(input: $input)
+}
+
+mutation AdviceGame($prompt: String!, $ai: AIValue, $skippedGames: [String!]) {
+  adviceGame(prompt: $prompt, ai: $ai, skippedGames: $skippedGames) {
+    id
+    name
+    slug
+    description
+    playtime
+    rating
+    metacritic
+    coverUrl
+    genres
+    platforms
+    releasedAt
+    createdAt
+    updatedAt
+  }
+}
+
+query Games(
+  $orderBy: RawgOrderingValue
+  $orderDirection: RawgOrderingDirection
+  $filter: GameFilterInput
+) {
+  games(orderBy: $orderBy, orderDirection: $orderDirection, filter: $filter) {
+    id
+    name
+    slug
+    description
+    playtime
+    rating
+    metacritic
+    coverUrl
+    genres
+    platforms
+    releasedAt
+    createdAt
+    updatedAt
+  }
+}
+
+query Game($slug: String!) {
+  game(slug: $slug) {
+    id
+    name
+    slug
+    description
+    playtime
+    rating
+    metacritic
+    coverUrl
+    genres
+    platforms
+    releasedAt
+    createdAt
+    updatedAt
+  }
+}
+
+query Genres {
+  genres {
+    id
+    name
+    createdAt
+    updatedAt
+  }
+}
+
+query Platforms {
+  platforms {
+    id
+    name
+    createdAt
+    updatedAt
+  }
+}
+
+mutation ResendConfirmation($input: ResendConfirmationDto!) {
+  resendConfirmation(input: $input) {
+    message
+  }
+}
