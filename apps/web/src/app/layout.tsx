@@ -5,6 +5,9 @@ import { ToastContainer } from 'react-toastify';
 import { TooltipProvider } from '@/components/ui/Tooltip';
 import { ApolloProvider } from 'game-advisor_network';
 import './globals.css';
+import { SessionProvider } from '@/providers/SessionProvider';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/constants/authConfig';
 
 const hanuman = Hanuman({
   weight: '400',
@@ -14,20 +17,26 @@ const hanuman = Hanuman({
 
 export const metadata: Metadata = {
   title: 'Game Advisor',
+  description:
+    'AI-powered assistant that helps you find the right game faster, with less scrolling and more playing',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+interface RootLayoutProps {
   children: ReactNode;
-}>) {
+}
+
+export default async function RootLayout({ children }: RootLayoutProps) {
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="en">
       <body className={`${hanuman.variable} antialiased`}>
         <ApolloProvider>
           <TooltipProvider>
-            {children}
-            <ToastContainer />
+            <SessionProvider session={session}>
+              {children}
+              <ToastContainer />
+            </SessionProvider>
           </TooltipProvider>
         </ApolloProvider>
       </body>
