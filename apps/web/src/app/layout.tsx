@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Hanuman } from 'next/font/google';
 import { ToastContainer } from 'react-toastify';
 import { TooltipProvider } from '@/components/ui/Tooltip';
+import { ApolloProvider } from 'game-advisor_network';
 import './globals.css';
 
 const hanuman = Hanuman({
@@ -23,10 +24,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${hanuman.variable} antialiased`}>
-        <TooltipProvider>
-          {children}
-          <ToastContainer />
-        </TooltipProvider>
+        <ApolloProvider>
+          <TooltipProvider>
+            {children}
+            <ToastContainer />
+          </TooltipProvider>
+        </ApolloProvider>
       </body>
     </html>
   );
