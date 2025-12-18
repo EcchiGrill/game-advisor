@@ -264,7 +264,7 @@ export class MailService {
 
     const mailOptions: nodemailer.SendMailOptions = {
       from: `"Game Advisor" <${process.env.GMAIL_USER}>`,
-      to: 'dmitry.oborsky@gmail.com',
+      to: process.env.FEEDBACK_RECEIVER,
       subject: 'New Feedback Received - Game Advisor 📝',
       messageId,
       headers: {
