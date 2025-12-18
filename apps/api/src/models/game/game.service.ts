@@ -442,7 +442,7 @@ export class GameService {
         ${skippedGames?.length > 0 ? `- Skipped games: ${skippedGames.join(', ')}` : ''}
         Top-15 semantically relevant games: 
         ${candidatesList}
-        Pick the BEST MATCHING game. Prioritize games with high ratings. Prioritize games released in the last 5 years. Use only open source data.
+        Pick the BEST MATCHING game from the list. Prioritize games with high ratings. Prioritize games released in the last 5 years. Use only open source data.
         Return only the slug of the best matching game. Do not include any other text.`,
           config: {
             systemInstruction:
@@ -470,7 +470,7 @@ export class GameService {
           ${skippedGames?.length > 0 ? `- Skipped games: ${skippedGames.join(', ')}` : ''}
           Top-15 semantically relevant games:  
           ${candidatesList}
-          Pick the BEST MATCHING game. Prioritize games with high ratings and released in the last 5 years. Use only open source data.
+          Pick the BEST MATCHING game from the list. Prioritize games with high ratings and released in the last 5 years. Use only open source data.
           Return only the slug of the best matching game. Do not include any other text.
           `,
             },
