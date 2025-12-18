@@ -2,7 +2,7 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ['media.rawg.io'],
+    remotePatterns: [{ hostname: 'media.rawg.io' }],
   },
 };
 
