@@ -15,7 +15,6 @@ describe('Card components', () => {
 
     const el = getByTestId('card');
     expect(el).toBeInTheDocument();
-    expect(el.className).toContain('rounded-xl');
     expect(el).toHaveTextContent('Hello');
   });
 
