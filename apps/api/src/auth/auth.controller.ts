@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  HttpCode,
   Post,
   UsePipes,
   ValidationPipe,
@@ -45,6 +46,7 @@ export class AuthController {
   }
 
   @Post('confirm-email')
+  @HttpCode(200)
   @ApiOkResponse({
     description: 'Email confirmed successfully',
     type: MessageResponse,
@@ -59,6 +61,7 @@ export class AuthController {
   }
 
   @Post('resend-confirmation')
+  @HttpCode(200)
   @ApiOkResponse({
     description:
       'Confirmation email resent (if email exists and is unconfirmed)',
@@ -71,6 +74,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @HttpCode(200)
   @ApiOkResponse({
     description: 'User successfully logged in',
     type: AuthResponseEntity,
@@ -83,6 +87,7 @@ export class AuthController {
   }
 
   @Post('forgot-password')
+  @HttpCode(200)
   @ApiOkResponse({
     description: 'Password reset email sent (if user exists)',
     type: MessageResponse,
@@ -94,6 +99,7 @@ export class AuthController {
   }
 
   @Post('reset-password')
+  @HttpCode(200)
   @ApiOkResponse({
     description: 'Password successfully reset',
     type: MessageResponse,

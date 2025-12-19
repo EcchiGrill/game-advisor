@@ -7,7 +7,11 @@
     "start": "nest start",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "dev": "nest start --watch",
-    "test": "jest --passWithNoTests"
+    "test": "jest",
+    "test:unit": "jest",
+    "test:e2e": "jest --config ./jest-e2e.json",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage"
   },
   "dependencies": {
     "@apollo/server": "^5.1.0",
@@ -75,6 +79,9 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
+    }
   }
 }
