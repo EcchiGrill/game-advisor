@@ -13,8 +13,8 @@ export class MailService {
       secure: false,
 
       auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD,
+        user: this.configService.get<string>('GMAIL_USER'),
+        pass: this.configService.get<string>('GMAIL_APP_PASSWORD'),
       },
     });
 
