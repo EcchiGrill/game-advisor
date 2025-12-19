@@ -194,7 +194,7 @@ export default function CatalogPage() {
               isFilterOpen ? 'max-w-[350px]' : 'w-0'
             } transition-all duration-300 overflow-hidden bg-primary/50`}
           >
-            <div className="bg-card border border-secondary/10 rounded-lg p-6 space-y-6 max-h-[calc(100vh-120px)] overflow-y-auto">
+            <div className="bg-card border border-secondary/10 rounded-lg p-6 space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-secondary flex items-center gap-2">
                   <Filter className="w-5 h-5" />
@@ -395,7 +395,7 @@ export default function CatalogPage() {
                       className="mb-3 bg-primary border-secondary/20 text-secondary placeholder:text-contrast h-10 pl-10"
                     />
                   </div>
-                  <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto">
+                  <div className="grid grid-cols-4 gap-2 max-h-64 overflow-x-hidden">
                     {filteredGenres.map((genre) => {
                       const genreName = reduceLabel(genre.name, 6);
 
