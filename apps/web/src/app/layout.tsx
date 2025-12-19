@@ -8,6 +8,7 @@ import './globals.css';
 import { SessionProvider } from '@/providers/SessionProvider';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/constants/authConfig';
+import { TokenProvider } from '@/providers/TokenProvider';
 
 const hanuman = Hanuman({
   weight: '400',
@@ -31,14 +32,16 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body className={`${hanuman.variable} antialiased`}>
-        <ApolloProvider>
-          <TooltipProvider>
-            <SessionProvider session={session}>
-              {children}
-              <ToastContainer />
-            </SessionProvider>
-          </TooltipProvider>
-        </ApolloProvider>
+        <TooltipProvider>
+          <SessionProvider session={session}>
+            <TokenProvider>
+              <ApolloProvider>
+                {children}
+                <ToastContainer />
+              </ApolloProvider>
+            </TokenProvider>
+          </SessionProvider>
+        </TooltipProvider>
       </body>
     </html>
   );

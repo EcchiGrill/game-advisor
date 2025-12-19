@@ -1,6 +1,6 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
+import { useState } from 'react';
 import Link from 'next/link';
 import {
   Card,
@@ -13,55 +13,71 @@ import {
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { Button } from '@/components/ui/Button';
-import { Mail, Lock } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { signInSchema, SignInData } from './sign-in.schema';
+import { Mail } from 'lucide-react';
+import { ConfirmationCard } from '@/components/common/ConfirmationCard';
+import {
+  ForgotPasswordData,
+  forgotPasswordSchema,
+} from './forgot-password.schema';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { ForgotPasswordDocument } from 'game-advisor_network';
+import { useMutation } from '@apollo/client/react';
 import { toast } from 'react-toastify';
 import { ErrorLabel } from '@/components/ui/ErrorLabel';
-import { useRouter } from 'next/navigation';
 
-export default function SignInPage() {
-  const router = useRouter();
-
+export default function ForgotPasswordPage() {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<SignInData>({
-    resolver: zodResolver(signInSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    control,
+  } = useForm<ForgotPasswordData>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: { email: '' },
   });
 
-  const onSubmit = async (data: SignInData) => {
-    const { email, password } = data;
+  const email = useWatch({ control, name: 'email' });
 
-    const response = await signIn('credentials', {
-      identifier: email,
-      password,
-      redirect: false,
+  const [forgotPassword] = useMutation(ForgotPasswordDocument);
+
+  const onSubmit = async (data: ForgotPasswordData) => {
+    const { email } = data;
+
+    const { data: forgotPasswordData, error } = await forgotPassword({
+      variables: { input: { email } },
     });
 
-    if (response?.error) {
-      toast.error(response.error);
-    } else {
-      router.push('/');
+    if (forgotPasswordData?.forgotPassword) {
+      setShowConfirmation(true);
+    }
+
+    if (error) {
+      toast.error(error.message);
+      return;
     }
   };
 
-  return (
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  return showConfirmation ? (
+    <ConfirmationCard
+      email={email}
+      description="Please check your inbox and click the reset link to create a new password. The link will expire in 1 hour."
+      onResendEmail={handleSubmit(onSubmit)}
+      loading={isSubmitting}
+    />
+  ) : (
     <Card className="w-full max-w-md py-12 bg-primary border border-secondary/10 shadow-2xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
       <CardHeader className="space-y-2 text-center">
         <CardTitle className="text-3xl font-bold text-secondary">
-          Welcome Back
+          Forgot Password?
         </CardTitle>
         <CardDescription className="text-contrast/80">
-          Sign in to your account to continue
+          Enter your email and we'll send you a reset link
         </CardDescription>
       </CardHeader>
+
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
@@ -83,51 +99,23 @@ export default function SignInPage() {
               <ErrorLabel message={errors.email.message} />
             )}
           </div>
-
-          <div className="space-y-2 pb-4">
-            <Label htmlFor="password" className="text-secondary">
-              Password
-            </Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-contrast/50" />
-              <Input
-                {...register('password')}
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                className="pl-10 bg-secondary/5 border-secondary/20 text-secondary placeholder:text-contrast/40"
-                required
-              />
-            </div>
-            {errors.password?.message && (
-              <ErrorLabel message={errors.password.message} />
-            )}
-            <div className="flex justify-end pt-1">
-              <Link
-                href="/forgot-password"
-                className="text-secondary/70 hover:text-secondary/50 text-sm transition-colors"
-              >
-                Forgot password?
-              </Link>
-            </div>
-          </div>
           <Button
             type="submit"
             className="w-full bg-secondary hover:bg-secondary/90 text-primary transition-all duration-200 shadow-lg hover:shadow-xl"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Signing in...' : 'Sign In'}
+            {isSubmitting ? 'Sending reset link...' : 'Send Reset Link'}
           </Button>
         </form>
       </CardContent>
       <CardFooter className="flex flex-col gap-4">
         <div className="text-sm text-center text-contrast/70">
-          Don't have an account?{' '}
+          Remember your password?{' '}
           <Link
-            href="/sign-up"
+            href="/sign-in"
             className="text-secondary hover:text-secondary/80 font-medium transition-colors"
           >
-            Sign up
+            Sign in
           </Link>
         </div>
       </CardFooter>

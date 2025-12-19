@@ -8,12 +8,14 @@ import {
   User as NetworkUser,
 } from 'game-advisor_network';
 
+type SafeNetworkUser = Omit<NetworkUser, 'preferences'>;
+
 declare module 'next-auth' {
   interface Session {
-    user: NetworkUser & { accessToken: string };
+    user: SafeNetworkUser & { accessToken: string };
   }
 
-  interface User extends NetworkUser {
+  interface User extends SafeNetworkUser {
     accessToken: string;
     email: string;
   }
@@ -21,9 +23,20 @@ declare module 'next-auth' {
 
 declare module 'next-auth/jwt' {
   interface JWT {
-    user: NetworkUser & { accessToken: string };
+    user: SafeNetworkUser & { accessToken: string };
   }
 }
+
+const normalizeUser = (profile: SafeNetworkUser) => {
+  return {
+    email: profile.email,
+    username: profile.username,
+    avatarUrl: profile.avatarUrl,
+    isEmailConfirmed: profile.isEmailConfirmed,
+    createdAt: profile.createdAt,
+    updatedAt: profile.updatedAt,
+  };
+};
 
 export const authOptions: AuthOptions = {
   pages: {
@@ -69,7 +82,7 @@ export const authOptions: AuthOptions = {
         if (!profile) return null;
 
         return {
-          ...profile,
+          ...normalizeUser(profile),
           id: profile.id,
           accessToken,
         };
@@ -98,7 +111,7 @@ export const authOptions: AuthOptions = {
 
         if (profile) {
           token.user = {
-            ...profile,
+            ...normalizeUser(profile),
             accessToken: token.user.accessToken,
             id: token.user.id,
           };

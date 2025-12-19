@@ -18,18 +18,23 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '../ui/Accordion';
-import { useMutation } from '@apollo/client/react';
-import { ResendConfirmationDocument } from 'game-advisor_network';
 import { useState, useEffect } from 'react';
 
 interface ConfirmationCardProps {
   email: string;
+  description: string;
+  onResendEmail: () => void;
+  loading: boolean;
 }
 
-export const ConfirmationCard = ({ email }: ConfirmationCardProps) => {
+export const ConfirmationCard = ({
+  email,
+  description,
+  onResendEmail,
+  loading,
+}: ConfirmationCardProps) => {
   const router = useRouter();
   const [countdown, setCountdown] = useState(15);
-  const [resendEmail, { loading }] = useMutation(ResendConfirmationDocument);
 
   useEffect(() => {
     if (countdown > 0) {
@@ -38,8 +43,8 @@ export const ConfirmationCard = ({ email }: ConfirmationCardProps) => {
     }
   }, [countdown]);
 
-  const handleResendEmail = async () => {
-    await resendEmail({ variables: { input: { email } } });
+  const handleResend = async () => {
+    onResendEmail();
     setCountdown(30);
   };
 
@@ -61,11 +66,9 @@ export const ConfirmationCard = ({ email }: ConfirmationCardProps) => {
       <CardContent className="space-y-4">
         <div className="p-4 rounded-md bg-secondary/5 border border-secondary/20">
           <p className="text-sm text-contrast/80 leading-relaxed">
-            Please check your inbox and click the confirmation link to activate
-            your account. The link will expire in 24 hours.
+            {description}
           </p>
         </div>
-
         <Accordion type="single" collapsible>
           <AccordionItem value="spam">
             <AccordionTrigger>
@@ -81,7 +84,7 @@ export const ConfirmationCard = ({ email }: ConfirmationCardProps) => {
               <Button
                 variant="secondary"
                 className="w-full"
-                onClick={handleResendEmail}
+                onClick={handleResend}
                 disabled={loading || countdown > 0}
               >
                 {countdown > 0

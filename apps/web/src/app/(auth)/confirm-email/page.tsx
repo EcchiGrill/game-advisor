@@ -47,30 +47,26 @@ export default function ConfirmEmailPage() {
         return;
       }
 
-      try {
-        setStatus('loading');
-        const { data, error } = await confirmEmailMutation({
-          variables: {
-            input: {
-              token,
-            },
+      setStatus('loading');
+      const { data, error } = await confirmEmailMutation({
+        variables: {
+          input: {
+            token,
           },
-        });
+        },
+      });
 
-        const confirmMessage = data?.confirmEmail.message;
+      const confirmMessage = data?.confirmEmail.message;
 
-        if (confirmMessage) {
-          setStatus('success');
-          setMessage(confirmMessage);
-        } else {
-          setStatus('error');
-          setMessage(
-            error?.message ||
-              'Failed to confirm email. The link may have expired.'
-          );
-        }
-      } catch {
+      if (confirmMessage) {
+        setStatus('success');
+        setMessage(confirmMessage);
+      } else {
         setStatus('error');
+        setMessage(
+          error?.message ||
+            'Failed to confirm email. The link may have expired.'
+        );
       }
     };
 

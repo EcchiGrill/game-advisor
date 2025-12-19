@@ -30,7 +30,7 @@ export class OptionalJwtAuthGuard extends AuthGuard('jwt') {
     return context.switchToHttp().getRequest();
   }
 
-  handleRequest<TUser = User | null>(user: TUser): TUser {
-    return user;
+  handleRequest<TUser = User | null>(_err, user: TUser): TUser {
+    return user ?? null;
   }
 }

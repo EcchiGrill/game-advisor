@@ -17,7 +17,10 @@ import { Mail, Lock, User } from 'lucide-react';
 import { SignUpData, signUpSchema } from './sign-up.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
-import { RegisterDocument } from 'game-advisor_network';
+import {
+  RegisterDocument,
+  ResendConfirmationDocument,
+} from 'game-advisor_network';
 import { useMutation } from '@apollo/client/react';
 import { toast } from 'react-toastify';
 import { ErrorLabel } from '@/components/ui/ErrorLabel';
@@ -41,14 +44,18 @@ export default function SignUpPage() {
 
   const email = useWatch({ control, name: 'email' });
 
-  const [registerMutation, { loading }] = useMutation(RegisterDocument);
+  const [registerMutation, { loading: registerLoading }] =
+    useMutation(RegisterDocument);
+  const [resendEmail, { loading: resendLoading }] = useMutation(
+    ResendConfirmationDocument
+  );
 
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const onSubmit = async (data: SignUpData) => {
     const { username, email, password } = data;
 
-    const { data: registerData, error } = await registerMutation({
+    const { error } = await registerMutation({
       variables: {
         input: {
           username,
@@ -58,15 +65,29 @@ export default function SignUpPage() {
       },
     });
 
-    if (registerData?.register) {
-      setShowConfirmation(true);
-    } else {
+    if (error) {
       toast.error(error?.message || 'Something went wrong');
+      return;
+    }
+    setShowConfirmation(true);
+  };
+
+  const handleResendEmail = async () => {
+    const { error } = await resendEmail({ variables: { input: { email } } });
+
+    if (error) {
+      toast.error(error.message);
+      return;
     }
   };
 
   return showConfirmation ? (
-    <ConfirmationCard email={email} />
+    <ConfirmationCard
+      email={email}
+      description="Please check your inbox and click the confirmation link to activate your account. The link will expire in 24 hours."
+      onResendEmail={handleResendEmail}
+      loading={resendLoading}
+    />
   ) : (
     <Card className="w-full max-w-md py-12 bg-primary border border-secondary/10 shadow-2xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
       <CardHeader className="space-y-2 text-center">
@@ -163,9 +184,9 @@ export default function SignUpPage() {
           <Button
             type="submit"
             className="w-full bg-secondary hover:bg-secondary/90 text-primary transition-all duration-200 shadow-lg hover:shadow-xl"
-            disabled={loading}
+            disabled={registerLoading}
           >
-            {loading ? 'Creating account...' : 'Sign Up'}
+            {registerLoading ? 'Creating account...' : 'Sign Up'}
           </Button>
         </form>
       </CardContent>
