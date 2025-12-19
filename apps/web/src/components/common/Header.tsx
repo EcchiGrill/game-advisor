@@ -5,6 +5,8 @@ import { Button } from '../ui/Button';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useSession } from 'next-auth/react';
+import { Avatar, AvatarImage, AvatarFallback } from '../ui/Avatar';
 
 const routes = [
   {
@@ -27,6 +29,7 @@ const routes = [
 
 export const Header = () => {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   return (
     <div className="flex justify-between items-center h-20 bg-black px-8">
@@ -54,14 +57,29 @@ export const Header = () => {
           </Button>
         ))}
       </div>
-      <div className="flex gap-3 items-center">
-        <Button asChild variant={'outline'}>
-          <Link href={'/sign-up'}>Sign up</Link>
-        </Button>
-        <Button variant={'secondary'} asChild>
-          <Link href={'/sign-in'}>Sign in</Link>
-        </Button>
-      </div>
+
+      {session?.user ? (
+        <Link href={'/profile'}>
+          <Avatar className="w-full h-10">
+            <AvatarImage
+              src={session.user.avatarUrl || ''}
+              alt={session.user.username}
+            />
+            <AvatarFallback className="font-bold">
+              {session.user.username}
+            </AvatarFallback>
+          </Avatar>
+        </Link>
+      ) : (
+        <div className="flex gap-3 items-center">
+          <Button asChild variant={'outline'}>
+            <Link href={'/sign-up'}>Sign up</Link>
+          </Button>
+          <Button variant={'secondary'} asChild>
+            <Link href={'/sign-in'}>Sign in</Link>
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

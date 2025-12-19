@@ -1,20 +1,15 @@
 'use client';
 
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
+import { authFetch } from './authFetch';
 import { ApolloProvider as Provider } from '@apollo/client/react';
-import { ReactNode } from 'react';
 
-export interface ApolloProviderProps {
-  children: ReactNode;
-}
-
-export const ApolloProvider = ({ children }: ApolloProviderProps) => {
-  const link = new HttpLink({
-    uri: process.env.NEXT_PUBLIC_API_URL + '/graphql',
-  });
-
+export const ApolloProvider = ({ children }) => {
   const client = new ApolloClient({
-    link,
+    link: new HttpLink({
+      uri: process.env.NEXT_PUBLIC_API_URL + '/graphql',
+      fetch: authFetch,
+    }),
     cache: new InMemoryCache(),
   });
 

@@ -15,6 +15,6 @@ export const CurrentUser = createParamDecorator(
       user = context.switchToHttp().getRequest().user;
     }
 
-    return data ? user?.[data] : user;
+    return data ? user?.[data] : (user ?? null);
   }
 );

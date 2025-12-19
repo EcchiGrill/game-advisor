@@ -6,7 +6,7 @@ import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
 interface AnimatedBackgroundProps {
-  loading: boolean;
+  loading?: boolean;
 }
 
 export function AnimatedBackground({ loading }: AnimatedBackgroundProps) {
