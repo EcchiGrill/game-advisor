@@ -11,6 +11,8 @@ export class MailService {
       host: this.configService.get<string>('EMAIL_HOST'),
       port: this.configService.get<number>('EMAIL_PORT'),
       secure: false,
+      logger: true,
+      debug: true,
 
       auth: {
         user: this.configService.get<string>('GMAIL_USER'),
