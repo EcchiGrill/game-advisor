@@ -4,10 +4,10 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MailService {
-  private transporter: nodemailer.Transporter;
+  constructor(private readonly configService: ConfigService) {}
 
-  constructor(private readonly configService: ConfigService) {
-    this.transporter = nodemailer.createTransport({
+  emailTransport() {
+    const transport = nodemailer.createTransport({
       host: this.configService.get<string>('EMAIL_HOST'),
       port: this.configService.get<number>('EMAIL_PORT'),
       secure: false,
@@ -17,6 +17,8 @@ export class MailService {
         pass: process.env.GMAIL_APP_PASSWORD,
       },
     });
+
+    return transport;
   }
 
   async sendEmailConfirmation(
@@ -97,7 +99,7 @@ export class MailService {
       `,
     };
 
-    await this.transporter.sendMail(mailOptions);
+    await this.emailTransport().sendMail(mailOptions);
   }
 
   async sendPasswordResetEmail(
@@ -177,7 +179,7 @@ export class MailService {
       `,
     };
 
-    await this.transporter.sendMail(mailOptions);
+    await this.emailTransport().sendMail(mailOptions);
   }
 
   async sendWelcomeEmail(email: string, username: string): Promise<void> {
@@ -260,7 +262,7 @@ export class MailService {
       `,
     };
 
-    await this.transporter.sendMail(mailOptions);
+    await this.emailTransport().sendMail(mailOptions);
   }
 
   async sendFeedbackEmail(recipient: string, content: string): Promise<void> {
@@ -339,6 +341,6 @@ export class MailService {
       `,
     };
 
-    await this.transporter.sendMail(mailOptions);
+    await this.emailTransport().sendMail(mailOptions);
   }
 }
