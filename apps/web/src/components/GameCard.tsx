@@ -147,7 +147,7 @@ export const GameCard = ({
         )}
       </CardContent>
 
-      {!onSkip && !onBan && !onChoose && (
+      {onSkip && onBan && onChoose && (
         <CardFooter className="flex gap-2 pb-6">
           {onSkip && (
             <Button
