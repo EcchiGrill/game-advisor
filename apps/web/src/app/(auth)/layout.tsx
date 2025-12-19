@@ -1,5 +1,4 @@
 import { AnimatedBackground } from '@/components/common/AnimatedBackground';
-import { Header } from '@/components/common/Header';
 import { ReactNode } from 'react';
 
 interface AuthLayoutProps {
@@ -9,7 +8,6 @@ interface AuthLayoutProps {
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <>
-      <Header />
       {children}
       <AnimatedBackground />
     </>
