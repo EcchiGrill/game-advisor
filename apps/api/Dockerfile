@@ -10,9 +10,8 @@ RUN npm install --legacy-peer-deps
 COPY . .
 
 RUN npx prisma generate
-
 RUN npm run build
 
 EXPOSE 4200
 
-CMD ["node", "dist/src/main"]
+CMD ["node", "dist/main.js"]
