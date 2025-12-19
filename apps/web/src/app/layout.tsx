@@ -9,6 +9,7 @@ import { SessionProvider } from '@/providers/SessionProvider';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/constants/authConfig';
 import { TokenProvider } from '@/providers/TokenProvider';
+import { Header } from '@/components/common/Header';
 
 const hanuman = Hanuman({
   weight: '400',
@@ -36,6 +37,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
           <SessionProvider session={session}>
             <TokenProvider>
               <ApolloProvider>
+                <Header />
                 {children}
                 <ToastContainer />
               </ApolloProvider>

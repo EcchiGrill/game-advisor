@@ -48,8 +48,8 @@ export const Header = () => {
               className={cn(
                 'text-lg',
                 pathname === route.href
-                  ? 'font-light'
-                  : 'font-thin hover:scale-95 transition-transform duration-200'
+                  ? 'font-semibold'
+                  : 'font-light hover:scale-95 transition-transform duration-200'
               )}
             >
               {route.label}
@@ -62,7 +62,7 @@ export const Header = () => {
         <Link href={'/profile'}>
           <Avatar className="w-full h-10">
             <AvatarImage
-              src={session.user.avatarUrl || ''}
+              src={session.user.avatarUrl ?? ''}
               alt={session.user.username}
             />
             <AvatarFallback className="font-bold">
