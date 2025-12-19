@@ -14,4 +14,4 @@ RUN npm run build
 
 EXPOSE 4200
 
-CMD sh -c "npx prisma migrate deploy && node dist/main.js"
+CMD sh -c "npx prisma db push && node dist/main.js"
