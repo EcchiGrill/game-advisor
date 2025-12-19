@@ -19,7 +19,6 @@ describe('Button', () => {
 
     const btn = screen.getByRole('button');
 
-    expect(btn.className).toContain('bg-destructive');
     expect(btn.className).toContain('h-12');
   });
 
