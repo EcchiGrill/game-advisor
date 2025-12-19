@@ -27,6 +27,7 @@ import {
 } from '../ui/Select';
 import { useLocalStorage } from '@/lib/hooks/useLocalStorage';
 import { useSession } from 'next-auth/react';
+import { motion } from 'framer-motion';
 
 const aiModels = [
   {
@@ -59,7 +60,7 @@ export const AIAdvisor = ({ loading, onLoadingChange }: AIAdvisorProps) => {
     },
   });
 
-  const { data: session, update: updateSession } = useSession();
+  const { data: session } = useSession();
 
   const [skippedGames, setSkippedGames] = useState<string[]>([]);
 
@@ -117,7 +118,6 @@ export const AIAdvisor = ({ loading, onLoadingChange }: AIAdvisorProps) => {
           },
         },
       });
-      await updateSession();
       await adviceGame({
         variables: { prompt, skippedGames: excludedGames, ai: model },
       });
@@ -140,7 +140,6 @@ export const AIAdvisor = ({ loading, onLoadingChange }: AIAdvisorProps) => {
           },
         },
       });
-      await updateSession();
     }
     const updatedChosenGames = new Set([...chosenGames, game!.name]);
     setChosenGames(Array.from(updatedChosenGames));
@@ -155,10 +154,6 @@ export const AIAdvisor = ({ loading, onLoadingChange }: AIAdvisorProps) => {
       toast.error(errorMessage);
     }
   }, [error, errors, onLoadingChange]);
-
-  useEffect(() => {
-    console.log(session);
-  }, [session]);
 
   return (
     <>
@@ -212,13 +207,26 @@ export const AIAdvisor = ({ loading, onLoadingChange }: AIAdvisorProps) => {
         </div>
       </form>
       {!isAdviceLoading && loading && game && (
-        <GameCard
-          game={game}
-          onClose={() => onLoadingChange(false)}
-          onSkip={handleSkip}
-          onBan={session?.user && handleBan}
-          onChoose={handleChoose}
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 50, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -50, scale: 0.9 }}
+          transition={{
+            type: 'spring',
+            stiffness: 300,
+            damping: 30,
+            duration: 0.6,
+          }}
+          className="fixed top-20 inset-x-0 bottom-0 flex items-center justify-center z-50 p-4"
+        >
+          <GameCard
+            game={game}
+            onClose={() => onLoadingChange(false)}
+            onSkip={handleSkip}
+            onBan={session?.user && handleBan}
+            onChoose={handleChoose}
+          />
+        </motion.div>
       )}
     </>
   );
